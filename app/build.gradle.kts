@@ -100,3 +100,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+configurations {
+    all {
+        exclude("com.google.guava", "listenablefuture")
+        exclude("org.hamcrest", "hamcrest-core")
+    }
+}
