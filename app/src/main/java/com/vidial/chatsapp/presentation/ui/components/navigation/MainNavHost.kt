@@ -6,13 +6,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.vidial.chatsapp.presentation.ui.components.screens.ChatListScreen
-import com.vidial.chatsapp.presentation.ui.components.screens.ChatScreen
-import com.vidial.chatsapp.presentation.ui.components.screens.EditProfileScreen
-import com.vidial.chatsapp.presentation.ui.components.screens.PhoneNumberScreen
-import com.vidial.chatsapp.presentation.ui.components.screens.ProfileScreen
-import com.vidial.chatsapp.presentation.ui.components.screens.RegistrationScreen
-import com.vidial.chatsapp.presentation.ui.components.screens.SmsCodeScreen
+import com.vidial.chatsapp.presentation.ui.screens.ChatListScreen
+import com.vidial.chatsapp.presentation.ui.screens.ChatScreen
+import com.vidial.chatsapp.presentation.ui.screens.EditProfileScreen
+import com.vidial.chatsapp.presentation.ui.screens.PhoneNumberScreen
+import com.vidial.chatsapp.presentation.ui.screens.ProfileScreen
+import com.vidial.chatsapp.presentation.ui.screens.RegistrationScreen
+import com.vidial.chatsapp.presentation.ui.screens.SmsCodeScreen
 
 @Composable
 fun MainNavHost(
@@ -29,10 +29,10 @@ fun MainNavHost(
             route = ScreenRoute.LoginGraph.route
         ) {
             composable(ScreenRoute.PhoneNumberScreen.route) {
-                PhoneNumberScreen(navController, paddingValues)
+                PhoneNumberScreen(navController = navController, paddingValues =  paddingValues)
             }
-            composable(ScreenRoute.SmsCodeScreen.route) {
-                SmsCodeScreen(navController, paddingValues)
+            composable(ScreenRoute.SmsCodeScreen.route) { backStackEntry ->
+                SmsCodeScreen(navController = navController, paddingValues = paddingValues, phoneNumber =  backStackEntry.arguments?.getString("phone") ?: "")
             }
         }
 

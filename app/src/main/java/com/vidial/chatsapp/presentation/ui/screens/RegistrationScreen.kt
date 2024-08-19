@@ -1,10 +1,10 @@
-package com.vidial.chatsapp.presentation.ui.components.screens
+package com.vidial.chatsapp.presentation.ui.screens
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 
 @Composable
-fun ChatListScreen(navController: NavHostController, paddingValues: PaddingValues) {
+fun RegistrationScreen(navController: NavHostController, paddingValues: PaddingValues) {
 
 }
