@@ -1,11 +1,16 @@
 package com.vidial.chatsapp.di
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.vidial.chatsapp.data.remote.api.PlannerokApi
 import com.vidial.chatsapp.data.remote.interceptor.AuthInterceptor
+import com.vidial.chatsapp.data.repository.AuthRepositoryImpl
 import com.vidial.chatsapp.domain.provider.TokenProvider
+import com.vidial.chatsapp.domain.repository.AuthRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,7 +20,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class NetworkModule {
+object NetworkModule {
 
     @Singleton
     @Provides
@@ -45,7 +50,31 @@ class NetworkModule {
 
     @Singleton
     @Provides
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+    }
+
+    @Singleton
+    @Provides
     fun provideAuthInterceptor(tokenProvider: TokenProvider): AuthInterceptor {
         return AuthInterceptor(tokenProvider)
+    }
+
+    @Singleton
+    @Provides
+    fun provideTokenProvider(
+        api: PlannerokApi,
+        preferences: SharedPreferences
+    ): TokenProvider {
+        return TokenProvider(api, preferences)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAuthRepository(
+        api: PlannerokApi,
+        preferences: SharedPreferences
+    ): AuthRepository {
+        return AuthRepositoryImpl(api, preferences)
     }
 }

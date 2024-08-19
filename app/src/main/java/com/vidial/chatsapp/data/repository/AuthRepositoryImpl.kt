@@ -12,7 +12,6 @@ import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val api: PlannerokApi,
-    private val tokenProvider: TokenProvider,
     private val preferences: SharedPreferences
 ) : AuthRepository {
 
