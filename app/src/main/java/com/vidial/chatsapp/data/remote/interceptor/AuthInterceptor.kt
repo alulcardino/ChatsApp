@@ -12,7 +12,7 @@ class AuthInterceptor(
         val originalRequest = chain.request()
         val url = originalRequest.url
 
-        // Skip adding Authorization header for certain endpoints
+        // Пропустить добавление заголовка Authorization для определенных эндпоинтов
         if (url.encodedPath.contains("/api/v1/users/register/") ||
             url.encodedPath.contains("/api/v1/users/send-auth-code/") ||
             url.encodedPath.contains("/api/v1/users/check-auth-code/")
@@ -29,10 +29,9 @@ class AuthInterceptor(
 
         if (response.code == 401) { // Unauthorized
             synchronized(this) {
-                // Check if refresh token is needed
                 val newAccessToken = tokenProvider.refreshAccessToken()
                 if (newAccessToken != null) {
-                    // Retry original request with new access token
+                    // Повторно отправить исходный запрос с новым токеном
                     val requestWithNewAuth = originalRequest.newBuilder()
                         .header("Authorization", "Bearer $newAccessToken")
                         .build()
