@@ -1,4 +1,4 @@
-package com.vidial.chatsapp.ui.theme
+package com.vidial.chatsapp.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

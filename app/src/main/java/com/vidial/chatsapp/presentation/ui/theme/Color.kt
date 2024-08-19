@@ -1,4 +1,4 @@
-package com.vidial.chatsapp.ui.theme
+package com.vidial.chatsapp.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
