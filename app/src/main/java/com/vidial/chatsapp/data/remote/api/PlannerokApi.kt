@@ -1,5 +1,6 @@
 package com.vidial.chatsapp.data.remote.api
 
+import com.vidial.chatsapp.data.remote.requests.AuthResult
 import com.vidial.chatsapp.data.remote.requests.CodeRequest
 import com.vidial.chatsapp.data.remote.requests.PhoneRequest
 import com.vidial.chatsapp.data.remote.requests.RefreshTokenRequest
@@ -13,8 +14,8 @@ interface PlannerokApi {
     suspend fun sendAuthCode(@Body request: PhoneRequest): Response<Unit>
 
     @POST("/api/v1/users/check-auth-code/")
-    suspend fun checkAuthCode(@Body request: CodeRequest): Response<AuthResponse>
+    suspend fun checkAuthCode(@Body request: CodeRequest): Response<AuthResult>
 
     @POST("/api/v1/users/refresh-token/")
-    suspend fun refreshToken(@Body request: RefreshTokenRequest): Response<AuthResponse>
+    suspend fun refreshToken(@Body request: RefreshTokenRequest): Response<AuthResult>
 }
