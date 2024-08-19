@@ -2,6 +2,7 @@ package com.vidial.chatsapp.data.remote.api
 
 import com.vidial.chatsapp.data.remote.requests.CodeRequest
 import com.vidial.chatsapp.data.remote.requests.PhoneRequest
+import com.vidial.chatsapp.data.remote.requests.RefreshTokenRequest
 import com.vidial.chatsapp.data.remote.response.AuthResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -13,4 +14,7 @@ interface PlannerokApi {
 
     @POST("/api/v1/users/check-auth-code/")
     suspend fun checkAuthCode(@Body request: CodeRequest): Response<AuthResponse>
+
+    @POST("/api/v1/users/refresh-token/")
+    suspend fun refreshToken(@Body request: RefreshTokenRequest): Response<AuthResponse>
 }

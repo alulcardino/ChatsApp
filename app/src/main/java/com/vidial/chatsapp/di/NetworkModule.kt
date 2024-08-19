@@ -1,6 +1,8 @@
 package com.vidial.chatsapp.di
 
 import com.vidial.chatsapp.data.remote.api.PlannerokApi
+import com.vidial.chatsapp.data.remote.interceptor.AuthInterceptor
+import com.vidial.chatsapp.domain.provider.TokenProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,5 +41,11 @@ class NetworkModule {
     @Provides
     fun providePlannerokApi(retrofit: Retrofit): PlannerokApi {
         return retrofit.create(PlannerokApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAuthInterceptor(tokenProvider: TokenProvider): AuthInterceptor {
+        return AuthInterceptor(tokenProvider)
     }
 }
