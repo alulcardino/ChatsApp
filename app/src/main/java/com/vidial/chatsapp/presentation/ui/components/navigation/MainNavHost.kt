@@ -11,7 +11,7 @@ import com.vidial.chatsapp.presentation.ui.screens.ChatScreen
 import com.vidial.chatsapp.presentation.ui.screens.EditProfileScreen
 import com.vidial.chatsapp.presentation.ui.screens.phone.PhoneNumberScreen
 import com.vidial.chatsapp.presentation.ui.screens.ProfileScreen
-import com.vidial.chatsapp.presentation.ui.screens.RegistrationScreen
+import com.vidial.chatsapp.presentation.ui.screens.registration.RegistrationScreen
 import com.vidial.chatsapp.presentation.ui.screens.sms.SmsCodeScreen
 
 @Composable
@@ -29,17 +29,25 @@ fun MainNavHost(
             route = ScreenRoute.LoginGraph.route
         ) {
             composable(ScreenRoute.PhoneNumberScreen.route) {
-                PhoneNumberScreen(navController = navController, paddingValues =  paddingValues)
+                PhoneNumberScreen(navController = navController, paddingValues = paddingValues)
             }
             composable(ScreenRoute.SmsCodeScreen.route) { backStackEntry ->
-                SmsCodeScreen(navController = navController, paddingValues = paddingValues, phoneNumber =  backStackEntry.arguments?.getString("phone") ?: "")
+                SmsCodeScreen(
+                    navController = navController,
+                    paddingValues = paddingValues,
+                    phoneNumber = backStackEntry.arguments?.getString("phone") ?: ""
+                )
+            }
+            composable(ScreenRoute.RegistrationScreen.route) { backStackEntry ->
+                RegistrationScreen(
+                    navController = navController,
+                    paddingValues = paddingValues,
+                    phoneNumber = backStackEntry.arguments?.getString("phone") ?: ""
+                )
             }
         }
 
-        // Регистрация
-        composable(ScreenRoute.RegistrationScreen.route) {
-            RegistrationScreen(navController, paddingValues)
-        }
+
 
         // Чаты
         navigation(

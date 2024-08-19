@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 
 @Composable
 fun SmsCodeScreen(
@@ -63,7 +64,7 @@ fun SmsCodeScreen(
             }
 
             is SmsCodeState.Register -> {
-                // Handle register state
+                navController.navigate(ScreenRoute.RegistrationScreen.createRoute(phoneNumber))
             }
 
             is SmsCodeState.Error -> {
