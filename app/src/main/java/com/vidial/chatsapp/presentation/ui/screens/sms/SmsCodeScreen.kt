@@ -1,4 +1,4 @@
-package com.vidial.chatsapp.presentation.ui.screens
+package com.vidial.chatsapp.presentation.ui.screens.sms
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -20,83 +20,55 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 
 @Composable
 fun SmsCodeScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
+    viewModel: SmsCodeViewModel = hiltViewModel(),
     navController: NavHostController,
-    phoneNumber: String,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    phoneNumber: String
 ) {
-    var smsCode by remember { mutableStateOf("") }
-    val context = LocalContext.current
+    val state by viewModel.state.collectAsState()
+    var code by remember { mutableStateOf("") }
 
-    val uiState = viewModel.uiState.collectAsState()
-
-    Column(
-        modifier = Modifier
-            .padding(paddingValues)
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Input for SMS code
-        TextField(
-            value = smsCode,
-            onValueChange = { newValue ->
-                if (newValue.length <= 6 && newValue.all { it.isDigit() }) {
-                    smsCode = newValue
+    Column(modifier = Modifier.padding(32.dp)) {
+        when (state) {
+            is SmsCodeState.Initial -> {
+                TextField(
+                    value = code,
+                    onValueChange = { code = it },
+                    label = { Text("Enter SMS Code") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+                Button(
+                    onClick = {
+                        viewModel.verifyCode(phoneNumber, code)
+                    }
+                ) {
+                    Text("Verify Code")
                 }
-            },
-            placeholder = { Text("Enter SMS code") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Number
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Button to verify code
-        Button(onClick = {
-            if (smsCode.length == 6) {
-                viewModel.verifyCode(phoneNumber, smsCode)
-            } else {
-                Toast.makeText(context, "Please enter a valid 6-digit code", Toast.LENGTH_SHORT).show()
             }
-        }) {
-            Text(text = "Verify Code")
-        }
 
-        // Handle UI State
-        when (uiState.value) {
-            is AuthUiState.Loading -> {
+            is SmsCodeState.Loading -> {
                 CircularProgressIndicator()
             }
-            is AuthUiState.Error -> {
-                Toast.makeText(context, (uiState.value as AuthUiState.Error).message, Toast.LENGTH_SHORT).show()
+
+            is SmsCodeState.Authenticated -> {
+                // Handle authenticated state
             }
-            is AuthUiState.Authorized -> {
-                navController.navigate(ScreenRoute.ChatListScreen.route) {
-                    popUpTo(ScreenRoute.PhoneNumberScreen.route) {
-                        inclusive = true
-                    }
-                }
+
+            is SmsCodeState.Register -> {
+                // Handle register state
             }
-            is AuthUiState.NeedsRegistration -> {
-                navController.navigate(ScreenRoute.RegistrationScreen.route)
+
+            is SmsCodeState.Error -> {
+                Text("Error: ${(state as SmsCodeState.Error).message}")
             }
-            else -> {}
         }
     }
 }

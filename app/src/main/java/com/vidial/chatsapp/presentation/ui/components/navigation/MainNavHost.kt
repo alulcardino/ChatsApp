@@ -9,10 +9,10 @@ import androidx.navigation.compose.navigation
 import com.vidial.chatsapp.presentation.ui.screens.ChatListScreen
 import com.vidial.chatsapp.presentation.ui.screens.ChatScreen
 import com.vidial.chatsapp.presentation.ui.screens.EditProfileScreen
-import com.vidial.chatsapp.presentation.ui.screens.PhoneNumberScreen
+import com.vidial.chatsapp.presentation.ui.screens.phone.PhoneNumberScreen
 import com.vidial.chatsapp.presentation.ui.screens.ProfileScreen
 import com.vidial.chatsapp.presentation.ui.screens.RegistrationScreen
-import com.vidial.chatsapp.presentation.ui.screens.SmsCodeScreen
+import com.vidial.chatsapp.presentation.ui.screens.sms.SmsCodeScreen
 
 @Composable
 fun MainNavHost(
