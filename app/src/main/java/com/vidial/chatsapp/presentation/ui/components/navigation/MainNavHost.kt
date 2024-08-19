@@ -29,10 +29,10 @@ fun MainNavHost(
             route = ScreenRoute.LoginGraph.route
         ) {
             composable(ScreenRoute.PhoneNumberScreen.route) {
-                PhoneNumberScreen(navController, paddingValues)
+                PhoneNumberScreen(navController = navController, paddingValues =  paddingValues)
             }
-            composable(ScreenRoute.SmsCodeScreen.route) {
-                SmsCodeScreen(navController, paddingValues)
+            composable(ScreenRoute.SmsCodeScreen.route) { backStackEntry ->
+                SmsCodeScreen(navController = navController, paddingValues = paddingValues, phoneNumber =  backStackEntry.arguments?.getString("phone") ?: "")
             }
         }
 
