@@ -15,7 +15,9 @@ interface PlannerokApi {
     suspend fun sendAuthCode(@Body request: PhoneRequest): Response<Unit>
 
     @POST("/api/v1/users/check-auth-code/")
-    suspend fun checkAuthCode(@Body request: CodeRequest): Response<AuthResult>
+    suspend fun checkAuthCode(
+        @Body request: CodeRequest
+    ): Response<AuthResult>
 
     @POST("/api/v1/users/refresh-token/")
     suspend fun refreshToken(@Body request: RefreshTokenRequest): Response<AuthResult>

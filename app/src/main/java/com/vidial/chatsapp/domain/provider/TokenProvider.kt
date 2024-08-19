@@ -44,4 +44,11 @@ class TokenProvider(
             null
         }
     }
+
+    fun saveTokens(accessToken: String?, refreshToken: String?) {
+        preferences.edit()
+            .putString("access_token", accessToken)
+            .putString("refresh_token", refreshToken)
+            .apply()
+    }
 }

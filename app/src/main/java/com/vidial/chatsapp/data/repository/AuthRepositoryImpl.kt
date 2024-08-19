@@ -17,7 +17,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun sendAuthCode(phone: String): Result<Unit> {
         return try {
-            // Создаем запрос с номером телефона
             val response = api.sendAuthCode(PhoneRequest(phone))
             if (response.isSuccessful) {
                 Result.success(Unit)
@@ -31,7 +30,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun checkAuthCode(phone: String, code: String): Result<AuthResult> {
         return try {
-            // Создаем запрос с номером телефона и кодом
             val response = api.checkAuthCode(CodeRequest(phone, code))
             if (response.isSuccessful) {
                 response.body()?.let {
@@ -55,7 +53,7 @@ class AuthRepositoryImpl @Inject constructor(
                     preferences.edit()
                         .putString("access_token", it.accessToken)
                         .putString("refresh_token", it.refreshToken)
-                        .putString("user_id", it.userId)
+                        .putString("user_id", it.userId.toString())
                         .apply()
                     Result.success(it)
                 } ?: Result.failure(Exception("Пустой ответ от сервера"))

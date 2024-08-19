@@ -60,11 +60,17 @@ fun SmsCodeScreen(
             }
 
             is SmsCodeState.Authenticated -> {
-                // Handle authenticated state
+                // Переход на главный экран после успешной аутентификации
+                navController.navigate(ScreenRoute.ChatListScreen.route) {
+                    popUpTo(ScreenRoute.SmsCodeScreen.route) { inclusive = true }
+                }
             }
 
             is SmsCodeState.Register -> {
-                navController.navigate(ScreenRoute.RegistrationScreen.createRoute(phoneNumber))
+                // Переход на экран регистрации, если пользователь не существует
+                navController.navigate(ScreenRoute.RegistrationScreen.createRoute(phoneNumber)) {
+                    popUpTo(ScreenRoute.SmsCodeScreen.route) { inclusive = true }
+                }
             }
 
             is SmsCodeState.Error -> {
