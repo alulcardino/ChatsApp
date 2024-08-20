@@ -10,4 +10,5 @@ interface AuthRepository {
     suspend fun registerUser(phone: String, name: String, username: String): Result<AuthResult>
     suspend fun getUserProfile(): Result<UserProfile>
     suspend fun updateUserProfile(profileRequest: UpdateProfileRequest): Result<Unit>
+    suspend fun logout()
 }

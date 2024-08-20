@@ -17,13 +17,13 @@ import com.vidial.chatsapp.presentation.ui.screens.sms.SmsCodeScreen
 @Composable
 fun MainNavHost(
     navController: NavHostController,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    startDestination: String // Добавляем параметр для начального экрана
 ) {
     NavHost(
         navController = navController,
-        startDestination = ScreenRoute.LoginGraph.route
+        startDestination = startDestination // Используем его в NavHost
     ) {
-        // Авторизация
         navigation(
             startDestination = ScreenRoute.PhoneNumberScreen.route,
             route = ScreenRoute.LoginGraph.route
@@ -47,8 +47,6 @@ fun MainNavHost(
             }
         }
 
-
-
         // Чаты
         navigation(
             startDestination = ScreenRoute.ChatListScreen.route,
@@ -63,13 +61,12 @@ fun MainNavHost(
             }
         }
 
-        // Профиль
         navigation(
             startDestination = ScreenRoute.ProfileScreen.route,
             route = ScreenRoute.ProfileGraph.route
         ) {
             composable(ScreenRoute.ProfileScreen.route) {
-                ProfileScreen()
+                ProfileScreen(navController = navController)
             }
             composable(ScreenRoute.EditProfileScreen.route) {
                 EditProfileScreen(navController, paddingValues)

@@ -5,21 +5,13 @@ import android.util.Log
 import com.vidial.chatsapp.data.remote.api.PlannerokApi
 import com.vidial.chatsapp.data.remote.requests.RefreshTokenRequest
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class TokenProvider @Inject constructor(
     private val api: PlannerokApi,
     private val preferences: SharedPreferences
 ) {
-
-    fun isTokenExpired(): Boolean {
-        val tokenTimestamp = preferences.getLong(TokenConstants.TOKEN_TIMESTAMP_KEY, 0L)
-        val currentTime = System.currentTimeMillis()
-        return currentTime - tokenTimestamp > TOKEN_EXPIRATION_TIME
-    }
 
     suspend fun refreshAccessToken(): String? {
         val refreshToken = preferences.getString(TokenConstants.REFRESH_TOKEN_KEY, "") ?: return null
@@ -49,15 +41,29 @@ class TokenProvider @Inject constructor(
         Log.d("AuthDebug", "Tokens saved. Access Token: $accessToken, Refresh Token: $refreshToken")
     }
 
-    companion object {
-        private const val TOKEN_EXPIRATION_TIME = 10 * 60 * 1000 // 10 минут в миллисекундах
+    fun setUserLoggedIn(isLoggedIn: Boolean) {
+        preferences.edit()
+            .putBoolean(TokenConstants.IS_LOGGED_IN_KEY, isLoggedIn)
+            .apply()
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return preferences.getBoolean(TokenConstants.IS_LOGGED_IN_KEY, false)
+    }
+
+    fun clearTokens() {
+        preferences.edit()
+            .remove(TokenConstants.ACCESS_TOKEN_KEY)
+            .remove(TokenConstants.REFRESH_TOKEN_KEY)
+            .remove(TokenConstants.TOKEN_TIMESTAMP_KEY)
+            .apply()
+        Log.d("AuthDebug", "Tokens cleared.")
     }
 
     object TokenConstants {
         const val ACCESS_TOKEN_KEY = "access_token"
         const val REFRESH_TOKEN_KEY = "refresh_token"
         const val TOKEN_TIMESTAMP_KEY = "token_timestamp"
+        const val IS_LOGGED_IN_KEY = "is_logged_in"
     }
 }
-
-
