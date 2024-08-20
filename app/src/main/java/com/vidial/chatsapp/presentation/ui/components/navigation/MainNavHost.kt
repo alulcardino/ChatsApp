@@ -9,8 +9,8 @@ import androidx.navigation.compose.navigation
 import com.vidial.chatsapp.presentation.ui.screens.chatList.ChatListScreen
 import com.vidial.chatsapp.presentation.ui.screens.chat.ChatScreen
 import com.vidial.chatsapp.presentation.ui.screens.EditProfileScreen
-import com.vidial.chatsapp.presentation.ui.screens.phone.PhoneNumberScreen
 import com.vidial.chatsapp.presentation.ui.screens.ProfileScreen
+import com.vidial.chatsapp.presentation.ui.screens.phone.PhoneNumberScreen
 import com.vidial.chatsapp.presentation.ui.screens.registration.RegistrationScreen
 import com.vidial.chatsapp.presentation.ui.screens.sms.SmsCodeScreen
 

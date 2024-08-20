@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.vidial.chatsapp.data.remote.api.PlannerokApi
+import com.vidial.chatsapp.data.remote.dto.UpdateProfileRequest
 import com.vidial.chatsapp.data.remote.dto.UserProfile
 import com.vidial.chatsapp.data.remote.dto.UserProfileResponse
 import com.vidial.chatsapp.data.remote.requests.AuthResult
@@ -102,8 +103,10 @@ class AuthRepositoryImpl @Inject constructor(
                         city = profileData.city ?: "",
                         birthDate = profileData.birthday ?: "",
                         zodiacSign = calculateZodiacSign(profileData.birthday ?: ""),
-                        about = profileData.status ?: ""
-                    )
+                        about = profileData.status ?: "",
+                        vk = profileData.vk ?: "",
+                        instagram = profileData.vk ?: "",
+                        )
                     Log.d("AuthDebug", "User profile fetched successfully.")
                     return Result.success(userProfile)
                 } else {
@@ -124,6 +127,23 @@ class AuthRepositoryImpl @Inject constructor(
         // Логика для вычисления знака зодиака по дате рождения
         // Например, вы можете использовать LocalDate для парсинга даты и определения знака
         return "Zodiac Sign" // Placeholder
+    }
+
+    override suspend fun updateUserProfile(profileRequest: UpdateProfileRequest): Result<Unit> {
+        Log.d("AuthDebug", "Updating user profile with name: ${profileRequest.name}, username: ${profileRequest.username}")
+        return try {
+            val response = api.updateProfile(profileRequest)
+            if (response.isSuccessful) {
+                Log.d("AuthDebug", "Profile updated successfully.")
+                Result.success(Unit)
+            } else {
+                Log.d("AuthDebug", "Error updating profile: ${response.message()}")
+                Result.failure(Exception("Error updating profile"))
+            }
+        } catch (e: Exception) {
+            Log.d("AuthDebug", "Exception in updateProfile: ${e.message}")
+            Result.failure(e)
+        }
     }
 
     private suspend fun refreshAccessTokenIfNeeded() {

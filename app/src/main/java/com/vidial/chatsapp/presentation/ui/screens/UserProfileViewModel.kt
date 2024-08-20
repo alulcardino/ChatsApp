@@ -2,8 +2,10 @@ package com.vidial.chatsapp.presentation.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vidial.chatsapp.data.remote.dto.UpdateProfileRequest
 import com.vidial.chatsapp.data.remote.dto.UserProfile
 import com.vidial.chatsapp.domain.usecase.GetUserProfileUseCase
+import com.vidial.chatsapp.domain.usecase.chat.UpdateUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +21,8 @@ sealed class UserProfileState {
 
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
-    private val getUserProfileUseCase: GetUserProfileUseCase
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val updateUserProfileUseCase: UpdateUserProfileUseCase
 ) : ViewModel() {
 
     private val _userProfileState = MutableStateFlow<UserProfileState>(UserProfileState.Loading)
@@ -49,6 +52,18 @@ class UserProfileViewModel @Inject constructor(
                 else -> {
                     UserProfileState.Error("Unknown error")
                 }
+            }
+        }
+    }
+
+    fun updateProfile(profileRequest: UpdateProfileRequest) {
+        viewModelScope.launch {
+            val result = updateUserProfileUseCase(profileRequest)
+            if (result.isSuccess) {
+                fetchUserProfile()
+            } else {
+                val message = result.exceptionOrNull()?.message ?: "Unknown error"
+                _userProfileState.value = UserProfileState.Error(message)
             }
         }
     }

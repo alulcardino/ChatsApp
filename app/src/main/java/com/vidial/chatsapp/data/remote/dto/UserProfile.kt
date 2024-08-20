@@ -72,5 +72,7 @@ data class UserProfile(
     val city: String,          // Город проживания
     val birthDate: String,     // Дата рождения (можно использовать формат ISO или другой)
     val zodiacSign: String,    // Знак зодиака
-    val about: String          // Информация о пользователе
+    val about: String,         // Информация о пользователе
+    val vk: String?,           // Профиль VK (может быть null, если не указан)
+    val instagram: String?,    // Профиль Instagram (может быть null, если не указан)
 )
