@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.vidial.chatsapp.data.remote.dto.UpdateProfileRequest
 import com.vidial.chatsapp.data.remote.dto.UserProfile
 import com.vidial.chatsapp.domain.usecase.GetUserProfileUseCase
+import com.vidial.chatsapp.domain.usecase.LogoutUseCase
 import com.vidial.chatsapp.domain.usecase.chat.UpdateUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,8 @@ sealed class UserProfileState {
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val getUserProfileUseCase: GetUserProfileUseCase,
-    private val updateUserProfileUseCase: UpdateUserProfileUseCase
+    private val updateUserProfileUseCase: UpdateUserProfileUseCase,
+    private val logoutUseCase: LogoutUseCase  // Новый use case для logout
 ) : ViewModel() {
 
     private val _userProfileState = MutableStateFlow<UserProfileState>(UserProfileState.Loading)
@@ -65,6 +67,14 @@ class UserProfileViewModel @Inject constructor(
                 val message = result.exceptionOrNull()?.message ?: "Unknown error"
                 _userProfileState.value = UserProfileState.Error(message)
             }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()  // Вызов use case для logout
+            _userProfileState.value = UserProfileState.Loading
+            // Здесь вы можете вызвать навигацию на экран входа, если нужно
         }
     }
 }

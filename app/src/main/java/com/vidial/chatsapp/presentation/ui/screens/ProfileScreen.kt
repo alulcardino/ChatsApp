@@ -2,6 +2,7 @@ package com.vidial.chatsapp.presentation.ui.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,21 +31,23 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.vidial.chatsapp.data.remote.dto.UpdateProfileRequest
 import com.vidial.chatsapp.data.remote.dto.UserProfile
+import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 
 @Composable
 fun UserProfileContent(
     userProfile: UserProfile,
-    onUpdateProfile: (UpdateProfileRequest) -> Unit
+    onUpdateProfile: (UpdateProfileRequest) -> Unit,
+    onLogout: () -> Unit
 ) {
-    var isEditing by remember { mutableStateOf(false) }  // Состояние режима редактирования
+    var isEditing by remember { mutableStateOf(false) }
 
-    // Эти переменные будут использоваться для редактирования, если isEditing = true
     var editableName by remember { mutableStateOf(userProfile.nickname) }
-    var editablePhone by remember { mutableStateOf(userProfile.phoneNumber) }
     var editableCity by remember { mutableStateOf(userProfile.city) }
     var editableBirthday by remember { mutableStateOf(userProfile.birthDate) }
     var editableAbout by remember { mutableStateOf(userProfile.about) }
     val zodiacSign = userProfile.zodiacSign
+
+    val isBirthdayValid = editableBirthday.isNotBlank()
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -63,27 +66,11 @@ fun UserProfileContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Никнейм
-                if (isEditing) {
-                    EditableTextField(
-                        label = "Nickname",
-                        value = editableName,
-                        onValueChange = { editableName = it }
-                    )
-                } else {
-                    Text("Nickname: ${userProfile.nickname}")
-                }
+                // Никнейм (неизменяемый)
+                Text("Nickname: ${userProfile.nickname}")
 
-                // Номер телефона
-                if (isEditing) {
-                    EditableTextField(
-                        label = "Phone",
-                        value = editablePhone,
-                        onValueChange = { editablePhone = it }
-                    )
-                } else {
-                    Text("Phone: ${userProfile.phoneNumber}")
-                }
+                // Номер телефона (неизменяемый)
+                Text("Phone: ${userProfile.phoneNumber}")
 
                 // Город
                 if (isEditing) {
@@ -96,13 +83,22 @@ fun UserProfileContent(
                     Text("City: ${userProfile.city}")
                 }
 
-                // Дата рождения
+                // Дата рождения (обязательное поле)
                 if (isEditing) {
                     EditableTextField(
                         label = "Birth Date",
                         value = editableBirthday,
-                        onValueChange = { editableBirthday = it }
+                        onValueChange = { editableBirthday = it },
+                        isRequired = true
                     )
+                    if (!isBirthdayValid) {
+                        Text(
+                            text = "Birth Date is required",
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        )
+                    }
                 } else {
                     Text("Birth Date: ${userProfile.birthDate}")
                 }
@@ -124,43 +120,53 @@ fun UserProfileContent(
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
-                // Если в режиме редактирования, добавляем кнопку "Сохранить"
+                // Кнопка "Сохранить" при редактировании
                 if (isEditing) {
                     Button(
                         onClick = {
-                            // Отправляем новые данные на сервер
-                            onUpdateProfile(
-                                UpdateProfileRequest(
-                                    name = editableName,
-                                    username = editableName,
-                                    birthday = editableBirthday,
-                                    city = editableCity,
-                                    vk = null,               // Значение VK, если есть
-                                    instagram = null,        // Значение Instagram, если есть
-                                    status = editableAbout,
+                            if (isBirthdayValid) {
+                                onUpdateProfile(
+                                    UpdateProfileRequest(
+                                        name = editableName,
+                                        username = userProfile.nickname,
+                                        birthday = editableBirthday,
+                                        city = editableCity,
+                                        vk = null,
+                                        instagram = null,
+                                        status = editableAbout,
+                                    )
                                 )
-                            )
-                            isEditing = false // Выход из режима редактирования после сохранения
+                                isEditing = false
+                            }
                         },
+                        enabled = isBirthdayValid,
+                        modifier = Modifier.padding(top = 16.dp)
                     ) {
                         Text("Save")
                     }
                 }
+
+                // Добавляем кнопку выхода
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onLogout,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Logout")
+                }
             }
         }
 
-        // Кнопка редактирования в правом верхнем углу
+        // Кнопка редактирования
         Button(
             onClick = {
                 if (isEditing) {
-                    // Если отмена, возвращаем все значения, которые были изначально
                     editableName = userProfile.nickname
-                    editablePhone = userProfile.phoneNumber
                     editableCity = userProfile.city
                     editableBirthday = userProfile.birthDate
                     editableAbout = userProfile.about
                 }
-                isEditing = !isEditing  // Переключаем режим редактирования
+                isEditing = !isEditing
             },
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -175,13 +181,25 @@ fun UserProfileContent(
 fun EditableTextField(
     label: String,
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    isRequired: Boolean = false
 ) {
     Column {
         TextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label) },
+            label = {
+                Row {
+                    Text(label)
+                    if (isRequired) {
+                        Text(
+                            text = " *",
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -190,7 +208,8 @@ fun EditableTextField(
 
 @Composable
 fun ProfileScreen(
-    viewModel: UserProfileViewModel = hiltViewModel()
+    viewModel: UserProfileViewModel = hiltViewModel(),
+    navController: NavHostController // Добавляем navController для управления навигацией
 ) {
     val state by viewModel.userProfileState.collectAsState()
 
@@ -202,9 +221,18 @@ fun ProfileScreen(
         }
         is UserProfileState.Success -> {
             val userProfile = (state as UserProfileState.Success).userProfile
-            UserProfileContent(userProfile = userProfile) { profileRequest ->
-                viewModel.updateProfile(profileRequest)
-            }
+            UserProfileContent(
+                userProfile = userProfile,
+                onUpdateProfile = { profileRequest ->
+                    viewModel.updateProfile(profileRequest)
+                },
+                onLogout = {
+                    viewModel.logout()
+                    navController.navigate(ScreenRoute.PhoneNumberScreen.route) {
+                        popUpTo(0) // Удаляем все из backstack, чтобы пользователь не мог вернуться назад
+                    }
+                }
+            )
         }
         is UserProfileState.Error -> {
             val message = (state as UserProfileState.Error).message
@@ -214,3 +242,5 @@ fun ProfileScreen(
         }
     }
 }
+
+

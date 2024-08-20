@@ -75,8 +75,7 @@ object NetworkModule {
     fun provideAuthRepository(
         api: PlannerokApi,
         tokenProvider: TokenProvider,
-        preferences: SharedPreferences
     ): AuthRepository {
-        return AuthRepositoryImpl(api, tokenProvider, preferences)
+        return AuthRepositoryImpl(api, tokenProvider)
     }
 }
