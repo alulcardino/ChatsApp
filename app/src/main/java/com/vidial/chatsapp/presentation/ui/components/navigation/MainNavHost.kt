@@ -6,8 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.vidial.chatsapp.presentation.ui.screens.ChatListScreen
-import com.vidial.chatsapp.presentation.ui.screens.ChatScreen
+import com.vidial.chatsapp.presentation.ui.screens.chatList.ChatListScreen
+import com.vidial.chatsapp.presentation.ui.screens.chat.ChatScreen
 import com.vidial.chatsapp.presentation.ui.screens.EditProfileScreen
 import com.vidial.chatsapp.presentation.ui.screens.phone.PhoneNumberScreen
 import com.vidial.chatsapp.presentation.ui.screens.ProfileScreen
@@ -57,8 +57,9 @@ fun MainNavHost(
             composable(ScreenRoute.ChatListScreen.route) {
                 ChatListScreen(navController, paddingValues)
             }
-            composable(ScreenRoute.ChatScreen.route) {
-                ChatScreen(navController, paddingValues)
+            composable(ScreenRoute.ChatScreen.route) { backStackEntry ->
+                val chatId = backStackEntry.arguments?.getString("chatId")?.toIntOrNull() ?: 0
+                ChatScreen(navController = navController, paddingValues = paddingValues, chatId = chatId)
             }
         }
 

@@ -10,7 +10,9 @@ sealed class ScreenRoute(val route: String) {
         fun createRoute(phone: String) = "registration/$phone"
     }
     object ChatListScreen : ScreenRoute("chat_list")
-    object ChatScreen : ScreenRoute("chat")
+    object ChatScreen : ScreenRoute("chat/{chatId}") {
+        fun createRoute(chatId: Int) = "chat/$chatId"
+    }
     object ProfileScreen : ScreenRoute("profile")
     object EditProfileScreen : ScreenRoute("edit_profile")
 
