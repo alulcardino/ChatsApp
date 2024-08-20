@@ -1,5 +1,6 @@
 package com.vidial.chatsapp.data.remote.api
 
+import com.vidial.chatsapp.data.remote.dto.UserProfileResponse
 import com.vidial.chatsapp.data.remote.requests.AuthResult
 import com.vidial.chatsapp.data.remote.requests.CodeRequest
 import com.vidial.chatsapp.data.remote.requests.PhoneRequest
@@ -8,6 +9,7 @@ import com.vidial.chatsapp.data.remote.requests.RegisterRequest
 import com.vidial.chatsapp.data.remote.response.AuthResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface PlannerokApi {
@@ -24,4 +26,7 @@ interface PlannerokApi {
 
     @POST("/api/v1/users/register/")
     suspend fun registerUser(@Body request: RegisterRequest): Response<AuthResult>
+
+    @GET("/api/v1/users/me/")
+    suspend fun getUserProfile(): Response<UserProfileResponse>
 }

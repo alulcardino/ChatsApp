@@ -69,7 +69,7 @@ fun MainNavHost(
             route = ScreenRoute.ProfileGraph.route
         ) {
             composable(ScreenRoute.ProfileScreen.route) {
-                ProfileScreen(navController, paddingValues)
+                ProfileScreen()
             }
             composable(ScreenRoute.EditProfileScreen.route) {
                 EditProfileScreen(navController, paddingValues)

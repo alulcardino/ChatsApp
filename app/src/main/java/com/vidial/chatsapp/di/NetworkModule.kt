@@ -22,18 +22,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    @Singleton
     @Provides
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder()
-            .addNetworkInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
-            .build()
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
@@ -42,26 +38,31 @@ object NetworkModule {
             .build()
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun providePlannerokApi(retrofit: Retrofit): PlannerokApi {
         return retrofit.create(PlannerokApi::class.java)
     }
 
-    @Singleton
     @Provides
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+    @Singleton
+    fun provideAuthInterceptor(preferences: SharedPreferences): AuthInterceptor {
+        return AuthInterceptor(preferences)
     }
 
-    @Singleton
     @Provides
-    fun provideAuthInterceptor(tokenProvider: TokenProvider): AuthInterceptor {
-        return AuthInterceptor(tokenProvider)
+    @Singleton
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .addNetworkInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+            .build()
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideTokenProvider(
         api: PlannerokApi,
         preferences: SharedPreferences
@@ -69,12 +70,13 @@ object NetworkModule {
         return TokenProvider(api, preferences)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideAuthRepository(
         api: PlannerokApi,
+        tokenProvider: TokenProvider,
         preferences: SharedPreferences
     ): AuthRepository {
-        return AuthRepositoryImpl(api, preferences)
+        return AuthRepositoryImpl(api, tokenProvider, preferences)
     }
 }
