@@ -1,6 +1,7 @@
 package com.vidial.chatsapp.data.repository
 
 import com.vidial.chatsapp.data.remote.dto.ChatDto
+import com.vidial.chatsapp.data.remote.dto.MessageDto
 import com.vidial.chatsapp.domain.repository.ChatRepository
 import javax.inject.Inject
 
@@ -69,6 +70,32 @@ class ChatRepositoryImpl @Inject constructor() : ChatRepository {
         )
     )
 
+    private val messages = listOf(
+        MessageDto(
+            id = 1,
+            chatId = 1,
+            sender = "Alice",
+            content = "Look at my cat!",
+            timestamp = "2024-08-20 10:00:00"
+        ),
+        MessageDto(
+            id = 2,
+            chatId = 1,
+            sender = "Bob",
+            content = "So cute!",
+            timestamp = "2024-08-20 10:01:00"
+        ),
+        MessageDto(
+            id = 3,
+            chatId = 2,
+            sender = "Charlie",
+            content = "Has anyone been to the Himalayas?",
+            timestamp = "2024-08-20 11:00:00"
+        )
+        // Добавьте больше сообщений по необходимости
+    )
+
+
     override suspend fun getChats(): List<ChatDto> {
         return chats
     }
@@ -77,5 +104,9 @@ class ChatRepositoryImpl @Inject constructor() : ChatRepository {
     override suspend fun getChatById(id: Int): ChatDto {
         return chats.find { it.id == id }
             ?: throw NoSuchElementException("Chat with id $id not found")
+    }
+
+    override suspend fun getMessagesForChat(chatId: Int): List<MessageDto> {
+        return messages.filter { it.chatId == chatId }
     }
 }

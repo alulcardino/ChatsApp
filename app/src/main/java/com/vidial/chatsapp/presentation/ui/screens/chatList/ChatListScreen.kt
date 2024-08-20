@@ -28,6 +28,7 @@ import coil.compose.rememberImagePainter
 import com.vidial.chatsapp.R
 import com.vidial.chatsapp.domain.model.ChatInfoModel
 import com.vidial.chatsapp.presentation.ui.components.CoilImage
+import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 
 @Composable
 fun ChatListScreen(
@@ -43,8 +44,7 @@ fun ChatListScreen(
     ) {
         items(chats) { chat ->
             ChatItem(chat = chat, onClick = {
-                // Handle chat item click, navigate to details or something else
-                navController.navigate("chatDetail/${chat.id}")
+                navController.navigate(ScreenRoute.ChatScreen.createRoute(chat.id))
             })
         }
     }
@@ -58,7 +58,6 @@ fun ChatItem(chat: ChatInfoModel, onClick: () -> Unit) {
             .padding(16.dp)
             .clickable(onClick = onClick)
     ) {
-        // Replace with actual image loading mechanism (Coil, Glide etc.)
         CoilImage(
             modifier = Modifier
                 .size(48.dp)
