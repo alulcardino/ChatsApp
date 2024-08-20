@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.vidial.chatsapp.presentation.ui.screens.ChatListScreen
+import com.vidial.chatsapp.presentation.ui.screens.chatList.ChatListScreen
 import com.vidial.chatsapp.presentation.ui.screens.ChatScreen
 import com.vidial.chatsapp.presentation.ui.screens.EditProfileScreen
 import com.vidial.chatsapp.presentation.ui.screens.phone.PhoneNumberScreen
