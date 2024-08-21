@@ -1,5 +1,17 @@
 package com.vidial.chatsapp.presentation.ui.screens
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,15 +36,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.vidial.chatsapp.R
+import com.vidial.chatsapp.data.remote.dto.Avatar
 import com.vidial.chatsapp.data.remote.dto.UpdateProfileRequest
 import com.vidial.chatsapp.data.remote.dto.UserProfile
+import com.vidial.chatsapp.presentation.ui.components.CoilImage
 import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
+import java.io.ByteArrayOutputStream
+import java.util.Base64
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserProfileContent(
     userProfile: UserProfile,
@@ -40,7 +59,7 @@ fun UserProfileContent(
     onLogout: () -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
-
+    var avatarUri by remember { mutableStateOf<Uri?>(null) }
     var editableName by remember { mutableStateOf(userProfile.nickname) }
     var editableCity by remember { mutableStateOf(userProfile.city) }
     var editableBirthday by remember { mutableStateOf(userProfile.birthDate) }
@@ -49,6 +68,20 @@ fun UserProfileContent(
 
     val isBirthdayValid = editableBirthday.isNotBlank()
 
+    val context = LocalContext.current
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            val selectedImageUri: Uri? = data?.data
+            if (selectedImageUri != null) {
+                avatarUri = selectedImageUri
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -56,17 +89,35 @@ fun UserProfileContent(
                 .padding(16.dp)
         ) {
             item {
-                // Аватарка пользователя
-                AsyncImage(
-                    model = userProfile.avatarUrl,
-                    contentDescription = null,
+                // Аватарка пользователя с обработкой нажатия
+                Box(
                     modifier = Modifier
                         .size(100.dp)
                         .clip(MaterialTheme.shapes.medium)
-                )
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
+                        .padding(4.dp)
+                        .clickable(enabled = isEditing) {
+                            // Запуск Intent для выбора изображения из галереи
+                            val pickImageIntent = Intent(Intent.ACTION_PICK).apply {
+                                type = "image/*"
+                            }
+                            imagePickerLauncher.launch(pickImageIntent)
+                        }
+                ) {
+                    Log.d("AuthDebug", ": $avatarUri")
+                    CoilImage(
+                        imageUrl = avatarUri?.toString()
+                            ?: userProfile.avatarUrl, // Используем средний размер аватарки
+                        contentDescription = "User Avatar",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(MaterialTheme.shapes.medium),
+                        defaultImageResId = R.drawable.chat_default
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Никнейм (неизменяемый)
                 Text("Nickname: ${userProfile.nickname}")
 
                 // Номер телефона (неизменяемый)
@@ -125,6 +176,14 @@ fun UserProfileContent(
                     Button(
                         onClick = {
                             if (isBirthdayValid) {
+                                val avatar = avatarUri?.let { uri ->
+                                    val base64Image = encodeImageToBase64(uri, context)
+                                    Avatar(
+                                        filename = "avatar.png", // Или получите имя файла из URI
+                                        base64 = base64Image
+                                    )
+                                }
+
                                 onUpdateProfile(
                                     UpdateProfileRequest(
                                         name = editableName,
@@ -134,6 +193,7 @@ fun UserProfileContent(
                                         vk = null,
                                         instagram = null,
                                         status = editableAbout,
+                                        avatar = avatar
                                     )
                                 )
                                 isEditing = false
@@ -146,7 +206,7 @@ fun UserProfileContent(
                     }
                 }
 
-                // Добавляем кнопку выхода
+                // Кнопка выхода
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = onLogout,
@@ -165,6 +225,7 @@ fun UserProfileContent(
                     editableCity = userProfile.city
                     editableBirthday = userProfile.birthDate
                     editableAbout = userProfile.about
+                    avatarUri = null // Сброс аватара при отмене редактирования
                 }
                 isEditing = !isEditing
             },
@@ -175,6 +236,17 @@ fun UserProfileContent(
             Text(if (isEditing) "Cancel" else "Edit")
         }
     }
+}
+
+// Функция для конвертации изображения в base64
+@RequiresApi(Build.VERSION_CODES.O)
+fun encodeImageToBase64(imageUri: Uri, context: android.content.Context): String? {
+    val inputStream = context.contentResolver.openInputStream(imageUri)
+    val bitmap = BitmapFactory.decodeStream(inputStream)
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+    val byteArray = outputStream.toByteArray()
+    return Base64.getEncoder().encodeToString(byteArray)
 }
 
 @Composable
@@ -206,6 +278,7 @@ fun EditableTextField(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileScreen(
     viewModel: UserProfileViewModel = hiltViewModel(),
@@ -219,6 +292,7 @@ fun ProfileScreen(
                 CircularProgressIndicator()
             }
         }
+
         is UserProfileState.Success -> {
             val userProfile = (state as UserProfileState.Success).userProfile
             UserProfileContent(
@@ -234,6 +308,7 @@ fun ProfileScreen(
                 }
             )
         }
+
         is UserProfileState.Error -> {
             val message = (state as UserProfileState.Error).message
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -242,5 +317,4 @@ fun ProfileScreen(
         }
     }
 }
-
 
