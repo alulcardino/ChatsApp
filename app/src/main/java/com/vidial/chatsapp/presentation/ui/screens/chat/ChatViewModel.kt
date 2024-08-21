@@ -10,7 +10,9 @@ import com.vidial.chatsapp.domain.repository.ChatRepository
 import com.vidial.chatsapp.domain.usecase.chat.GetChatByIdUseCase
 import com.vidial.chatsapp.domain.usecase.chat.GetMessagesFromChatUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,6 +25,9 @@ class ChatViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = _state
+
+    private val _effect = MutableSharedFlow<ChatEffect>()
+    val effect: SharedFlow<ChatEffect> = _effect
 
     fun handleIntent(intent: ChatIntent) {
         when (intent) {
@@ -40,6 +45,7 @@ class ChatViewModel @Inject constructor(
                 _state.value = _state.value.copy(chat = chatInfo, isLoading = false)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, errorMessage = "Failed to load chat")
+                _effect.emit(ChatEffect.ShowError("Failed to load chat"))
             }
         }
     }
@@ -52,6 +58,7 @@ class ChatViewModel @Inject constructor(
                 _state.value = _state.value.copy(messages = messages, isLoading = false)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(isLoading = false, errorMessage = "Failed to load messages")
+                _effect.emit(ChatEffect.ShowError("Failed to load messages"))
             }
         }
     }
