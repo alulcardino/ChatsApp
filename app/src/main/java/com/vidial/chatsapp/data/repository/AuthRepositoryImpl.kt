@@ -113,7 +113,13 @@ class AuthRepositoryImpl @Inject constructor(
                     val profileData = profileResponse.profileData
 
                     if (profileData != null) {
-                        val avatarUrl = profileData.avatars?.avatar ?: profileData.avatar ?: ""
+
+                        // Создаем полный URL для аватарки
+                        val avatarUrl = if (profileData.avatars?.avatar?.startsWith("http") == true) {
+                            profileData.avatars.avatar
+                        } else {
+                            "https://plannerok.ru/${profileData.avatars?.avatar}"
+                        }
 
                         val userProfile = UserProfile(
                             avatarUrl = avatarUrl,
@@ -126,7 +132,7 @@ class AuthRepositoryImpl @Inject constructor(
                             vk = profileData.vk ?: "",
                             instagram = profileData.instagram ?: "",
                         )
-                        Log.d("AuthDebug", "User profile fetched successfully.")
+                        Log.d("AuthDebug", "User profile fetched successfully with avatar URL: $avatarUrl")
                         Result.success(userProfile)
                     } else {
                         Log.d("AuthDebug", "Profile data is null.")
@@ -145,18 +151,20 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun updateUserProfile(profileRequest: UpdateProfileRequest): Result<Unit> {
         return executeWithTokenRefresh {
-            Log.d("AuthDebug", "Updating user profile with name: ${profileRequest.name}, username: ${profileRequest.username}")
+            Log.d("AuthDebug", "Attempting to update user profile with the following data: ${profileRequest.name}, ${profileRequest.username}, avatar: ${profileRequest.avatar?.filename}")
+
             try {
                 val response = api.updateProfile(profileRequest)
+
                 if (response.isSuccessful) {
-                    Log.d("AuthDebug", "Profile updated successfully.")
+                    Log.d("AuthDebug", "Profile updated successfully with avatar: ${profileRequest.avatar?.filename}")
                     Result.success(Unit)
                 } else {
-                    Log.d("AuthDebug", "Error updating profile: ${response.message()}")
+                    Log.e("AuthDebug", "Error updating profile. HTTP status: ${response.code()}, message: ${response.message()}, body: ${response.errorBody()?.string()}")
                     Result.failure(Exception("Error updating profile"))
                 }
             } catch (e: Exception) {
-                Log.d("AuthDebug", "Exception in updateProfile: ${e.message}")
+                Log.e("AuthDebug", "Exception occurred during profile update: ${e.message}")
                 Result.failure(e)
             }
         }

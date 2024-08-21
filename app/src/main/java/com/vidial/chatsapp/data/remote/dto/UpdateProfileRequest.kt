@@ -2,6 +2,7 @@ package com.vidial.chatsapp.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
+
 data class UpdateProfileRequest(
     @SerializedName("name")
     val name: String?,
@@ -24,7 +25,9 @@ data class UpdateProfileRequest(
     @SerializedName("status")
     val status: String?,
 
-// Вложенный объект с информацией об аватаре
+    // Вложенный объект с информацией об аватаре
+    @SerializedName("avatar")
+    val avatar: Avatar?
 )
 
 data class Avatar(
