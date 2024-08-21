@@ -41,11 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
 import com.vidial.chatsapp.R
-import com.vidial.chatsapp.data.remote.dto.Avatar
-import com.vidial.chatsapp.data.remote.dto.UpdateProfileRequest
-import com.vidial.chatsapp.data.remote.dto.UserProfile
+import com.vidial.chatsapp.domain.model.AvatarModel
+import com.vidial.chatsapp.domain.model.UpdateProfileModel
+import com.vidial.chatsapp.domain.model.UserProfileModel
 import com.vidial.chatsapp.presentation.ui.components.CoilImage
 import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 import java.io.ByteArrayOutputStream
@@ -54,16 +53,22 @@ import java.util.Base64
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UserProfileContent(
-    userProfile: UserProfile,
-    onUpdateProfile: (UpdateProfileRequest) -> Unit,
+    userProfile: UserProfileModel,
+    onUpdateProfile: (UpdateProfileModel) -> Unit,
     onLogout: () -> Unit
 ) {
+    Log.d("UserProfileContent", "Rendering UserProfileContent with: $userProfile")
+
+    val username = userProfile.username.ifBlank { "Unknown" }
+    val city = userProfile.city.ifBlank { "Not provided" }
+    val birthday = if (userProfile.birthDate.isBlank()) "Birthday not provided" else userProfile.birthDate
+    val avatarUrl = userProfile.avatarUrl?.ifBlank { "" }
+
     var isEditing by remember { mutableStateOf(false) }
     var avatarUri by remember { mutableStateOf<Uri?>(null) }
-    var editableName by remember { mutableStateOf(userProfile.nickname) }
-    var editableCity by remember { mutableStateOf(userProfile.city) }
-    var editableBirthday by remember { mutableStateOf(userProfile.birthDate) }
-    var editableAbout by remember { mutableStateOf(userProfile.about) }
+    var editableName by remember { mutableStateOf(username) }
+    var editableCity by remember { mutableStateOf(city) }
+    var editableBirthday by remember { mutableStateOf(birthday) }
     val zodiacSign = userProfile.zodiacSign
 
     val isBirthdayValid = editableBirthday.isNotBlank()
@@ -89,7 +94,6 @@ fun UserProfileContent(
                 .padding(16.dp)
         ) {
             item {
-                // Аватарка пользователя с обработкой нажатия
                 Box(
                     modifier = Modifier
                         .size(100.dp)
@@ -97,17 +101,14 @@ fun UserProfileContent(
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                         .padding(4.dp)
                         .clickable(enabled = isEditing) {
-                            // Запуск Intent для выбора изображения из галереи
                             val pickImageIntent = Intent(Intent.ACTION_PICK).apply {
                                 type = "image/*"
                             }
                             imagePickerLauncher.launch(pickImageIntent)
                         }
                 ) {
-                    Log.d("AuthDebug", ": $avatarUri")
                     CoilImage(
-                        imageUrl = avatarUri?.toString()
-                            ?: userProfile.avatarUrl, // Используем средний размер аватарки
+                        imageUrl = avatarUri?.toString() ?: avatarUrl,
                         contentDescription = "User Avatar",
                         modifier = Modifier
                             .fillMaxSize()
@@ -118,12 +119,9 @@ fun UserProfileContent(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text("Nickname: ${userProfile.nickname}")
+                Text("Nickname: $username")
+                Text("Phone: ${userProfile.phone}")
 
-                // Номер телефона (неизменяемый)
-                Text("Phone: ${userProfile.phoneNumber}")
-
-                // Город
                 if (isEditing) {
                     EditableTextField(
                         label = "City",
@@ -131,10 +129,9 @@ fun UserProfileContent(
                         onValueChange = { editableCity = it }
                     )
                 } else {
-                    Text("City: ${userProfile.city}")
+                    Text("City: $city")
                 }
 
-                // Дата рождения (обязательное поле)
                 if (isEditing) {
                     EditableTextField(
                         label = "Birth Date",
@@ -151,49 +148,33 @@ fun UserProfileContent(
                         )
                     }
                 } else {
-                    Text("Birth Date: ${userProfile.birthDate}")
+                    Text("Birth Date: $birthday")
                 }
 
-                // О себе
-                if (isEditing) {
-                    EditableTextField(
-                        label = "About",
-                        value = editableAbout,
-                        onValueChange = { editableAbout = it }
-                    )
-                } else {
-                    Text("About: ${userProfile.about}")
-                }
-
-                // Знак зодиака (только отображение)
                 Text(
                     text = "Zodiac Sign: $zodiacSign",
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
-                // Кнопка "Сохранить" при редактировании
                 if (isEditing) {
                     Button(
                         onClick = {
                             if (isBirthdayValid) {
-                                val avatar = avatarUri?.let { uri ->
+                                val avatarModel = avatarUri?.let { uri ->
                                     val base64Image = encodeImageToBase64(uri, context)
-                                    Avatar(
-                                        filename = "avatar.png", // Или получите имя файла из URI
+                                    AvatarModel(
+                                        filename = "avatar.png",
                                         base64 = base64Image
                                     )
                                 }
 
                                 onUpdateProfile(
-                                    UpdateProfileRequest(
+                                    UpdateProfileModel(
                                         name = editableName,
-                                        username = userProfile.nickname,
+                                        username = username,
                                         birthday = editableBirthday,
                                         city = editableCity,
-                                        vk = null,
-                                        instagram = null,
-                                        status = editableAbout,
-                                        avatar = avatar
+                                        avatar = avatarModel
                                     )
                                 )
                                 isEditing = false
@@ -206,7 +187,6 @@ fun UserProfileContent(
                     }
                 }
 
-                // Кнопка выхода
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = onLogout,
@@ -217,15 +197,13 @@ fun UserProfileContent(
             }
         }
 
-        // Кнопка редактирования
         Button(
             onClick = {
                 if (isEditing) {
-                    editableName = userProfile.nickname
-                    editableCity = userProfile.city
-                    editableBirthday = userProfile.birthDate
-                    editableAbout = userProfile.about
-                    avatarUri = null // Сброс аватара при отмене редактирования
+                    editableName = username
+                    editableCity = city
+                    editableBirthday = birthday
+                    avatarUri = null
                 }
                 isEditing = !isEditing
             },

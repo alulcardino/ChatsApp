@@ -1,14 +1,13 @@
 package com.vidial.chatsapp.data.remote.api
 
-import com.vidial.chatsapp.data.remote.dto.UpdateProfileRequest
-import com.vidial.chatsapp.data.remote.dto.UserProfileResponse
+import com.vidial.chatsapp.data.remote.dto.UpdateProfileDto
+import com.vidial.chatsapp.data.remote.dto.GetUserProfileDto
 import com.vidial.chatsapp.data.remote.requests.AuthResult
 import com.vidial.chatsapp.data.remote.requests.CodeRequest
 import com.vidial.chatsapp.data.remote.requests.PhoneRequest
 import com.vidial.chatsapp.data.remote.requests.RefreshTokenRequest
 import com.vidial.chatsapp.data.remote.requests.RefreshTokenResponse
 import com.vidial.chatsapp.data.remote.requests.RegisterRequest
-import com.vidial.chatsapp.data.remote.response.AuthResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -31,8 +30,8 @@ interface PlannerokApi {
     suspend fun registerUser(@Body request: RegisterRequest): Response<AuthResult>
 
     @GET("/api/v1/users/me/")
-    suspend fun getUserProfile(): Response<UserProfileResponse>
+    suspend fun getUserProfile(): Response<GetUserProfileDto>
 
     @PUT("/api/v1/users/me/")
-    suspend fun updateProfile(@Body request: UpdateProfileRequest): Response<Unit>
+    suspend fun updateProfile(@Body request: UpdateProfileDto): Response<Unit>
 }
