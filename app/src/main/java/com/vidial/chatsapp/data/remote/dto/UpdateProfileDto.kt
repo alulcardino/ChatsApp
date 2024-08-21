@@ -1,9 +1,11 @@
 package com.vidial.chatsapp.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
+import com.vidial.chatsapp.domain.model.AvatarModel
+import com.vidial.chatsapp.domain.model.UpdateProfileModel
 
 
-data class UpdateProfileRequest(
+data class UpdateProfileDto(
     @SerializedName("name")
     val name: String?,
 
@@ -11,7 +13,7 @@ data class UpdateProfileRequest(
     val username: String?,
 
     @SerializedName("birthday")
-    val birthday: String?,  // Убедитесь, что дата корректно парсится как строка или LocalDate
+    val birthday: String?,
 
     @SerializedName("city")
     val city: String?,
@@ -25,15 +27,14 @@ data class UpdateProfileRequest(
     @SerializedName("status")
     val status: String?,
 
-    // Вложенный объект с информацией об аватаре
     @SerializedName("avatar")
-    val avatar: Avatar?
+    val avatarDto: AvatarDto?
 )
 
-data class Avatar(
+data class AvatarDto(
     @SerializedName("filename")
-    val filename: String?,  // Имя файла аватара
+    val filename: String?,
 
     @SerializedName("base_64")
-    val base64: String?  // Кодировка изображения в base64
+    val base64: String?
 )

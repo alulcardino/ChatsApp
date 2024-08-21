@@ -1,6 +1,5 @@
 package com.vidial.chatsapp.data.remote.dto
 
-import com.vidial.chatsapp.domain.model.ChatInfoModel
 import com.vidial.chatsapp.domain.model.MessageModel
 
 data class MessageDto(

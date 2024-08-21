@@ -1,4 +1,4 @@
-package com.vidial.chatsapp.data.remote.requests
+package com.vidial.chatsapp.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
