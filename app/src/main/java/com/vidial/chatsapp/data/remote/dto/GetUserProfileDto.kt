@@ -68,17 +68,14 @@ data class Avatars(
 
 fun GetUserProfileDto.toUserProfileModel(): UserProfileModel {
 
-    val avatarUrl = if (this.profileData?.avatars?.avatar?.startsWith("http") == true) {
-        this.profileData.avatars.avatar
-    } else {
-        val constructedUrl = this.profileData?.avatars?.avatar?.let { "https://plannerok.ru/$it" }
-        constructedUrl ?: ""
-    }
+    val avatarUrl = profileData?.avatars?.avatar?.let {
+        if (it.startsWith("http")) it else "https://plannerok.ru/$it"
+    } ?: ""
 
-    val birthDate = this.profileData?.birthday ?: ""
-    val username = this.profileData?.username ?: ""
-    val city = this.profileData?.city ?: ""
-    val phone = this.profileData?.phone ?: ""
+    val birthDate = profileData?.birthday.orEmpty()
+    val username = profileData?.username.orEmpty()
+    val city = profileData?.city.orEmpty()
+    val phone = profileData?.phone.orEmpty()
 
     return UserProfileModel(
         birthDate = birthDate,

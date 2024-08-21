@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SmsCodeViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val checkAuthCodeUseCase: CheckAuthCodeUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<SmsCodeState>(SmsCodeState.Initial)
@@ -22,7 +22,7 @@ class SmsCodeViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = SmsCodeState.Loading
             try {
-                val result = authRepository.checkAuthCode(phoneNumber, code)
+                val result = checkAuthCodeUseCase(phoneNumber, code)
                 if (result.isSuccess) {
                     val authResult = result.getOrNull()
                     if (authResult?.isUserExists == true) {

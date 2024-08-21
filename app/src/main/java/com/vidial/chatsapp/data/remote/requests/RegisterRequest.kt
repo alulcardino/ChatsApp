@@ -1,4 +1,12 @@
 package com.vidial.chatsapp.data.remote.requests
 
-data class RegisterRequest(val phone: String, val name: String, val username: String)
+import com.google.gson.annotations.SerializedName
+
+data class RegisterRequest(
+    @SerializedName("phone")
+    val phone: String,
+    @SerializedName("name")
+    val name: String,
+    @SerializedName("username")
+    val username: String)
 

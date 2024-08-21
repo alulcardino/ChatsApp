@@ -10,4 +10,3 @@ interface ChatRepository {
 
     suspend fun getMessagesForChat(chatId: Int): List<MessageDto>
 }
-
