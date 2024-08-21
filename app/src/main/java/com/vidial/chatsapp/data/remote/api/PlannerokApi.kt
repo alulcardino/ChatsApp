@@ -6,6 +6,7 @@ import com.vidial.chatsapp.data.remote.requests.AuthResult
 import com.vidial.chatsapp.data.remote.requests.CodeRequest
 import com.vidial.chatsapp.data.remote.requests.PhoneRequest
 import com.vidial.chatsapp.data.remote.requests.RefreshTokenRequest
+import com.vidial.chatsapp.data.remote.requests.RefreshTokenResponse
 import com.vidial.chatsapp.data.remote.requests.RegisterRequest
 import com.vidial.chatsapp.data.remote.response.AuthResponse
 import retrofit2.Response
@@ -24,7 +25,7 @@ interface PlannerokApi {
     ): Response<AuthResult>
 
     @POST("/api/v1/users/refresh-token/")
-    suspend fun refreshToken(@Body request: RefreshTokenRequest): Response<AuthResult>
+    suspend fun refreshToken(@Body request: RefreshTokenRequest): Response<RefreshTokenResponse>
 
     @POST("/api/v1/users/register/")
     suspend fun registerUser(@Body request: RegisterRequest): Response<AuthResult>

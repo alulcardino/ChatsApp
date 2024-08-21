@@ -19,6 +19,8 @@ import com.vidial.chatsapp.domain.provider.TokenProvider.TokenConstants.ACCESS_T
 import com.vidial.chatsapp.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import retrofit2.Response
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -27,161 +29,122 @@ class AuthRepositoryImpl @Inject constructor(
     private val tokenProvider: TokenProvider,
 ) : AuthRepository {
 
-    private suspend fun <T> executeWithTokenRefresh(request: suspend () -> Result<T>): Result<T> {
-        var response = request()
-        if (response.isFailure && (response.exceptionOrNull() as? Exception)?.message?.contains("401") == true) {
-            Log.d("AuthDebug", "401 Unauthorized response, attempting to refresh token.")
+    private suspend fun <T> executeWithTokenRefresh(request: suspend () -> Response<T>): Result<T> {
+        Log.d("AuthDebug", "Executing request with possible token refresh.")
+
+        val response = try {
+            request()
+        } catch (e: Exception) {
+            Log.d("AuthDebug", "Request failed with exception: ${e.message}")
+            return Result.failure(e)
+        }
+
+        if (response.code() == 401) {
+            Log.d("AuthDebug", "401 Unauthorized detected, attempting to refresh token.")
+
+            // Попытка обновления токена
             val newToken = tokenProvider.refreshAccessToken()
+
             return if (newToken != null) {
-                request()
+                Log.d("AuthDebug", "Token refreshed successfully: $newToken. Retrying the request.")
+                val newResponse = try {
+                    request() // Повторяем запрос с новым токеном
+                } catch (e: Exception) {
+                    Log.d("AuthDebug", "Request after token refresh failed with exception: ${e.message}")
+                    return Result.failure(Exception("Request after token refresh failed"))
+                }
+
+                if (newResponse.isSuccessful) {
+                    Result.success(newResponse.body()!!)
+                } else {
+                    Log.d("AuthDebug", "Request after token refresh failed: ${newResponse.code()} - ${newResponse.message()}")
+                    Result.failure(Exception("Request after token refresh failed with status: ${newResponse.code()}"))
+                }
             } else {
+                Log.d("AuthDebug", "Failed to refresh token, cannot retry request.")
                 Result.failure(Exception("Unable to refresh token"))
             }
         }
-        return response
+
+        return if (response.isSuccessful) {
+            Log.d("AuthDebug", "Request succeeded.")
+            Result.success(response.body()!!)
+        } else {
+            Log.d("AuthDebug", "Request failed: ${response.code()} - ${response.message()}")
+            Result.failure(Exception("Request failed with status: ${response.code()}"))
+        }
     }
 
     override suspend fun sendAuthCode(phone: String): Result<Unit> {
         return executeWithTokenRefresh {
             Log.d("AuthDebug", "Sending auth code for phone: $phone")
-            try {
-                val response = api.sendAuthCode(PhoneRequest(phone))
-                if (response.isSuccessful) {
-                    Log.d("AuthDebug", "Auth code sent successfully.")
-                    Result.success(Unit)
-                } else {
-                    Log.d("AuthDebug", "Error sending auth code: ${response.message()}")
-                    Result.failure(Exception("Error sending auth code"))
-                }
-            } catch (e: Exception) {
-                Log.d("AuthDebug", "Exception in sendAuthCode: ${e.message}")
-                Result.failure(e)
-            }
-        }
+            api.sendAuthCode(PhoneRequest(phone)) // Возвращает Response<Unit>
+        }.map { Unit }
     }
 
     override suspend fun checkAuthCode(phone: String, code: String): Result<AuthResult> {
         return executeWithTokenRefresh {
-            try {
-                val response = api.checkAuthCode(CodeRequest(phone, code))
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        tokenProvider.saveTokens(it.accessToken, it.refreshToken)
-                        tokenProvider.setUserLoggedIn(true)
-                        Result.success(it)
-                    } ?: Result.failure(Exception("Empty response"))
-                } else {
-                    Result.failure(Exception("Error checking auth code"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
+            Log.d("AuthDebug", "Checking auth code for phone: $phone with code: $code")
+            api.checkAuthCode(CodeRequest(phone, code)) // Возвращает Response<AuthResult>
+        }.onSuccess {
+            tokenProvider.saveTokens(it.accessToken, it.refreshToken)
+            tokenProvider.setUserLoggedIn(true)
         }
     }
 
     override suspend fun registerUser(phone: String, name: String, username: String): Result<AuthResult> {
         return executeWithTokenRefresh {
-            withContext(Dispatchers.IO) {
-                try {
-                    val response = api.registerUser(RegisterRequest(phone, name, username))
-                    if (response.isSuccessful) {
-                        response.body()?.let {
-                            tokenProvider.saveTokens(it.accessToken, it.refreshToken)
-                            Result.success(it)
-                        } ?: Result.failure(Exception("Empty response"))
-                    } else {
-                        Result.failure(Exception("Error registering user"))
-                    }
-                } catch (e: Exception) {
-                    Result.failure(e)
-                }
-            }
+            Log.d("AuthDebug", "Registering user with phone: $phone, name: $name, username: $username")
+            api.registerUser(RegisterRequest(phone, name, username)) // Возвращает Response<AuthResult>
+        }.onSuccess {
+            tokenProvider.saveTokens(it.accessToken, it.refreshToken)
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getUserProfile(): Result<UserProfile> {
         return executeWithTokenRefresh {
             Log.d("AuthDebug", "Fetching user profile")
-            try {
-                val response = api.getUserProfile()
+            api.getUserProfile() // Возвращает Response<UserProfileResponse>
+        }.mapCatching { profileResponse ->
+            val profileData = profileResponse.profileData ?: throw Exception("Profile data is null")
 
-                val profileResponse = response.body()
-                Log.d("AuthDebug", "Full Response Body: $profileResponse")
-
-                if (response.isSuccessful && profileResponse != null) {
-                    val profileData = profileResponse.profileData
-
-                    if (profileData != null) {
-
-                        // Создаем полный URL для аватарки
-                        val avatarUrl = if (profileData.avatars?.avatar?.startsWith("http") == true) {
-                            profileData.avatars.avatar
-                        } else {
-                            "https://plannerok.ru/${profileData.avatars?.avatar}"
-                        }
-
-                        val userProfile = UserProfile(
-                            avatarUrl = avatarUrl,
-                            phoneNumber = profileData.phone ?: "",
-                            nickname = profileData.username ?: "",
-                            city = profileData.city ?: "",
-                            birthDate = profileData.birthday ?: "",
-                            zodiacSign = calculateZodiacSign(profileData.birthday ?: ""),
-                            about = profileData.status ?: "",
-                            vk = profileData.vk ?: "",
-                            instagram = profileData.instagram ?: "",
-                        )
-                        Log.d("AuthDebug", "User profile fetched successfully with avatar URL: $avatarUrl")
-                        Result.success(userProfile)
-                    } else {
-                        Log.d("AuthDebug", "Profile data is null.")
-                        Result.failure(Exception("Profile data is null"))
-                    }
-                } else {
-                    Log.d("AuthDebug", "Error fetching user profile: ${response.message()}")
-                    Result.failure(Exception("Error fetching user profile"))
-                }
-            } catch (e: Exception) {
-                Log.d("AuthDebug", "Exception in getUserProfile: ${e.message}")
-                Result.failure(e)
+            val avatarUrl = if (profileData.avatars?.avatar?.startsWith("http") == true) {
+                profileData.avatars.avatar
+            } else {
+                "https://plannerok.ru/${profileData.avatars?.avatar}"
             }
+
+            UserProfile(
+                avatarUrl = avatarUrl,
+                phoneNumber = profileData.phone ?: "",
+                nickname = profileData.username ?: "",
+                city = profileData.city ?: "",
+                birthDate = profileData.birthday ?: "",
+                zodiacSign = calculateZodiacSign(profileData.birthday ?: ""),
+                about = profileData.status ?: "",
+                vk = profileData.vk ?: "",
+                instagram = profileData.instagram ?: "",
+            )
         }
     }
 
     override suspend fun updateUserProfile(profileRequest: UpdateProfileRequest): Result<Unit> {
         return executeWithTokenRefresh {
-            Log.d("AuthDebug", "Attempting to update user profile with the following data: ${profileRequest.name}, ${profileRequest.username}, avatar: ${profileRequest.avatar?.filename}")
-
-            try {
-                val response = api.updateProfile(profileRequest)
-
-                if (response.isSuccessful) {
-                    Log.d("AuthDebug", "Profile updated successfully with avatar: ${profileRequest.avatar?.filename}")
-                    Result.success(Unit)
-                } else {
-                    Log.e("AuthDebug", "Error updating profile. HTTP status: ${response.code()}, message: ${response.message()}, body: ${response.errorBody()?.string()}")
-                    Result.failure(Exception("Error updating profile"))
-                }
-            } catch (e: Exception) {
-                Log.e("AuthDebug", "Exception occurred during profile update: ${e.message}")
-                Result.failure(e)
-            }
-        }
+            Log.d("AuthDebug", "Attempting to update user profile with data: $profileRequest")
+            api.updateProfile(profileRequest) // Возвращает Response<Unit>
+        }.map { Unit }
     }
 
     override suspend fun logout() {
         withContext(Dispatchers.IO) {
             tokenProvider.clearTokens()
             tokenProvider.setUserLoggedIn(false)
-
             Log.d("AuthDebug", "User logged out successfully.")
         }
     }
 
     private fun calculateZodiacSign(birthday: String): String {
         // Логика для вычисления знака зодиака по дате рождения
-        // Например, вы можете использовать LocalDate для парсинга даты и определения знака
         return "Zodiac Sign" // Placeholder
     }
 }
