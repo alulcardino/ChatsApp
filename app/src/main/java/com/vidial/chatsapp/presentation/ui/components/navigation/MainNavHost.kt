@@ -57,7 +57,7 @@ fun MainNavHost(
             }
             composable(ScreenRoute.ChatScreen.route) { backStackEntry ->
                 val chatId = backStackEntry.arguments?.getString("chatId")?.toIntOrNull() ?: 0
-                ChatScreen(navController = navController, paddingValues = paddingValues, chatId = chatId)
+                ChatScreen(navController = navController, chatId = chatId)
             }
         }
 

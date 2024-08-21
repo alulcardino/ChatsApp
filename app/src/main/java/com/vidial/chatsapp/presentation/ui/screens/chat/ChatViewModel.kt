@@ -21,33 +21,50 @@ class ChatViewModel @Inject constructor(
     private val getChatByIdUseCase: GetChatByIdUseCase
 ) : ViewModel() {
 
-    private val _messages = MutableStateFlow<List<MessageModel>>(emptyList())
-    val messages: StateFlow<List<MessageModel>> = _messages
+    private val _state = MutableStateFlow(ChatState())
+    val state: StateFlow<ChatState> = _state
 
-    private val _chat = MutableStateFlow<ChatInfoModel?>(null)
-    val chat: StateFlow<ChatInfoModel?> = _chat
-
-    fun loadChat(chatId: Int) {
-        viewModelScope.launch {
-            _chat.value = getChatByIdUseCase(chatId)
+    fun handleIntent(intent: ChatIntent) {
+        when (intent) {
+            is ChatIntent.LoadChat -> loadChat(intent.chatId)
+            is ChatIntent.LoadMessages -> loadMessagesForChat(intent.chatId)
+            is ChatIntent.SendMessage -> sendMessage(intent.chatId, intent.sender, intent.content)
         }
     }
 
-    fun loadMessagesForChat(chatId: Int) {
+    private fun loadChat(chatId: Int) {
         viewModelScope.launch {
-            _messages.value = getMessagesFromChatUseCase(chatId)
+            _state.value = _state.value.copy(isLoading = true)
+            try {
+                val chatInfo = getChatByIdUseCase(chatId)
+                _state.value = _state.value.copy(chat = chatInfo, isLoading = false)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(isLoading = false, errorMessage = "Failed to load chat")
+            }
         }
     }
 
-    fun sendMessage(chatId: Int, sender: String, content: String) {
+    private fun loadMessagesForChat(chatId: Int) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
+            try {
+                val messages = getMessagesFromChatUseCase(chatId)
+                _state.value = _state.value.copy(messages = messages, isLoading = false)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(isLoading = false, errorMessage = "Failed to load messages")
+            }
+        }
+    }
+
+    private fun sendMessage(chatId: Int, sender: String, content: String) {
         val newMessage = MessageModel(
-            id = _messages.value.size + 1,
+            id = _state.value.messages.size + 1,
             chatId = chatId,
             sender = sender,
             content = content,
             timestamp = getCurrentTimestamp()
         )
-        _messages.value += newMessage
+        _state.value = _state.value.copy(messages = _state.value.messages + newMessage)
     }
 
     private fun getCurrentTimestamp(): String {
