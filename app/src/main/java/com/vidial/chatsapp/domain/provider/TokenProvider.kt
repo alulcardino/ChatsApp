@@ -15,19 +15,14 @@ class TokenProvider @Inject constructor(
 
     suspend fun refreshAccessToken(): String? {
         val refreshToken = preferences.getString(TokenConstants.REFRESH_TOKEN_KEY, "") ?: return null
-        Log.d("AuthDebug", "Refreshing token with refresh token: $refreshToken")
-
         val response = withContext(Dispatchers.IO) {
             api.refreshToken(RefreshTokenRequest(refreshToken))
         }
-
         return if (response.isSuccessful) {
             val newToken = response.body()?.accessToken
-            Log.d("AuthDebug", "New access token received: $newToken")
             saveTokens(newToken, refreshToken)
             newToken
         } else {
-            Log.d("AuthDebug", "Failed to refresh access token.")
             null
         }
     }

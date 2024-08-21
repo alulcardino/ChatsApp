@@ -25,39 +25,53 @@ fun CoilImage(
     modifier: Modifier = Modifier,
     defaultImageResId: Int
 ) {
+    val context = LocalContext.current
     val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
+        model = ImageRequest.Builder(context)
             .data(imageUrl)
             .crossfade(true)
+            .diskCachePolicy(coil.request.CachePolicy.ENABLED)
+            .size(128, 128)
             .build()
     )
+
     Box(modifier = modifier) {
-        Image(
-            painter = painter,
-            contentDescription = contentDescription,
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(4.dp)),
-            contentScale = ContentScale.Crop
-        )
-
-        if (painter.state is AsyncImagePainter.State.Loading) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(36.dp)
-                    .align(Alignment.Center)
-            )
-        }
-
-        if (painter.state is AsyncImagePainter.State.Error) {
-            Image(
-                painter = painterResource(id = defaultImageResId),
-                contentDescription = contentDescription,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(4.dp)),
-                contentScale = ContentScale.Crop
-            )
+        when (painter.state) {
+            is AsyncImagePainter.State.Loading -> {
+                Image(
+                    painter = painterResource(id = defaultImageResId), // Placeholder image during loading
+                    contentDescription = contentDescription,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(4.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .align(Alignment.Center)
+                )
+            }
+            is AsyncImagePainter.State.Error -> {
+                Image(
+                    painter = painterResource(id = defaultImageResId), // Error image
+                    contentDescription = contentDescription,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(4.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            else -> {
+                Image(
+                    painter = painter,
+                    contentDescription = contentDescription,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(4.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
     }
 }

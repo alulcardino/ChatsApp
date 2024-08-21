@@ -29,22 +29,15 @@ class AuthRepositoryImpl @Inject constructor(
 
     private suspend fun <T> executeWithTokenRefresh(request: suspend () -> Result<T>): Result<T> {
         var response = request()
-
         if (response.isFailure && (response.exceptionOrNull() as? Exception)?.message?.contains("401") == true) {
             Log.d("AuthDebug", "401 Unauthorized response, attempting to refresh token.")
-
-            // Пытаемся обновить токен
             val newToken = tokenProvider.refreshAccessToken()
-
             return if (newToken != null) {
-                // Если токен успешно обновлен, повторяем запрос
                 request()
             } else {
-                // Если обновить токен не удалось, возвращаем ошибку
                 Result.failure(Exception("Unable to refresh token"))
             }
         }
-
         return response
     }
 
