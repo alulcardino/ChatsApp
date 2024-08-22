@@ -25,28 +25,34 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             return Result.failure(e)
         }
-        if (response.code() == 401) {
-            val newToken = tokenProvider.refreshAccessToken()
 
-            return if (newToken != null) {
-                val newResponse = try {
-                    request()
-                } catch (e: Exception) {
-                    return Result.failure(Exception("Request after token refresh failed"))
-                }
-                if (newResponse.isSuccessful) {
-                    Result.success(newResponse.body()!!)
-                } else {
-                    Result.failure(Exception("Request after token refresh failed with status: ${newResponse.code()}"))
-                }
-            } else {
-                Result.failure(Exception("Unable to refresh token"))
+        return when {
+            response.isSuccessful -> {
+                Result.success(response.body()!!)
             }
-        }
-        return if (response.isSuccessful) {
-            Result.success(response.body()!!)
-        } else {
-            Result.failure(Exception("Request failed with status: ${response.code()}"))
+            response.code() == 401 -> {
+                val newToken = tokenProvider.refreshAccessToken()
+                if (newToken != null) {
+                    val newResponse = try {
+                        request()
+                    } catch (e: Exception) {
+                        return Result.failure(Exception("Request after token refresh failed"))
+                    }
+                    if (newResponse.isSuccessful) {
+                        Result.success(newResponse.body()!!)
+                    } else {
+                        Result.failure(Exception("Request after token refresh failed with status: ${newResponse.code()}"))
+                    }
+                } else {
+                    Result.failure(Exception("Unable to refresh token"))
+                }
+            }
+            response.code() == 404 -> {
+                Result.failure(Exception("Request failed with status 404: Not Found"))
+            }
+            else -> {
+                Result.failure(Exception("Request failed with status: ${response.code()} - ${response.message()}"))
+            }
         }
     }
 

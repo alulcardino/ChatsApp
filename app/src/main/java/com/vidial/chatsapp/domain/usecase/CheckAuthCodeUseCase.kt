@@ -9,6 +9,16 @@ class CheckAuthCodeUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
     suspend operator fun invoke(phone: String, code: String): Result<AuthResponse> {
-        return authRepository.checkAuthCode(CodeRequest(phone = phone, code = code))
+        val result = authRepository.checkAuthCode(CodeRequest(phone = phone, code = code))
+        return if (result.isSuccess) {
+            result
+        } else {
+            val exceptionMessage = result.exceptionOrNull()?.message
+            if (exceptionMessage?.contains("404") == true) {
+                Result.failure(Exception("Неверный код верификации, попробуйте еще раз"))
+            } else {
+                result
+            }
+        }
     }
 }
