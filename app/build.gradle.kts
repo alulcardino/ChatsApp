@@ -91,6 +91,9 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.12.40")
+
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

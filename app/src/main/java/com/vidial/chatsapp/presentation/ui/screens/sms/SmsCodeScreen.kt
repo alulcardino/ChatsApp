@@ -15,12 +15,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,21 +39,52 @@ fun SmsCodeScreen(
     phoneNumber: String
 ) {
     val state by viewModel.state.collectAsState()
+    val effectFlow = viewModel.effect
     var code by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
-    Column(modifier = Modifier.padding(32.dp)) {
+    LaunchedEffect(effectFlow) {
+        effectFlow.collect { effect ->
+            when (effect) {
+                is SmsCodeEffect.NavigateToChatList -> {
+                    navController.navigate(ScreenRoute.ChatListScreen.route) {
+                        popUpTo(ScreenRoute.SmsCodeScreen.route) { inclusive = true }
+                    }
+                }
+                is SmsCodeEffect.NavigateToRegistration -> {
+                    navController.navigate(ScreenRoute.RegistrationScreen.createRoute(effect.phoneNumber)) {
+                        popUpTo(ScreenRoute.SmsCodeScreen.route) { inclusive = true }
+                    }
+                }
+                is SmsCodeEffect.ShowErrorToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         when (state) {
             is SmsCodeState.Initial -> {
                 TextField(
                     value = code,
                     onValueChange = { code = it },
                     label = { Text("Enter SMS Code") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        viewModel.verifyCode(phoneNumber, code)
-                    }
+                        viewModel.handleIntent(SmsCodeIntent.VerifyCode(phoneNumber, code))
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Verify Code")
                 }
@@ -59,23 +94,15 @@ fun SmsCodeScreen(
                 CircularProgressIndicator()
             }
 
-            is SmsCodeState.Authenticated -> {
-                // Переход на главный экран после успешной аутентификации
-                navController.navigate(ScreenRoute.ChatListScreen.route) {
-                    popUpTo(ScreenRoute.SmsCodeScreen.route) { inclusive = true }
-                }
-            }
-
-            is SmsCodeState.Register -> {
-                // Переход на экран регистрации, если пользователь не существует
-                navController.navigate(ScreenRoute.RegistrationScreen.createRoute(phoneNumber)) {
-                    popUpTo(ScreenRoute.SmsCodeScreen.route) { inclusive = true }
-                }
-            }
-
             is SmsCodeState.Error -> {
-                Text("Error: ${(state as SmsCodeState.Error).message}")
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Error: ${(state as SmsCodeState.Error).message}",
+                    color = Color.Red
+                )
             }
+
+            else -> Unit
         }
     }
 }
