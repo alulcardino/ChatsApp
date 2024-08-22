@@ -1,5 +1,7 @@
 package com.vidial.chatsapp.presentation.ui.components.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -8,21 +10,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.vidial.chatsapp.presentation.ui.screens.chatList.ChatListScreen
 import com.vidial.chatsapp.presentation.ui.screens.chat.ChatScreen
-import com.vidial.chatsapp.presentation.ui.screens.EditProfileScreen
-import com.vidial.chatsapp.presentation.ui.screens.ProfileScreen
+import com.vidial.chatsapp.presentation.ui.screens.profile.ProfileScreen
 import com.vidial.chatsapp.presentation.ui.screens.phone.PhoneNumberScreen
 import com.vidial.chatsapp.presentation.ui.screens.registration.RegistrationScreen
 import com.vidial.chatsapp.presentation.ui.screens.sms.SmsCodeScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainNavHost(
     navController: NavHostController,
     paddingValues: PaddingValues,
-    startDestination: String // Добавляем параметр для начального экрана
+    startDestination: String
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination // Используем его в NavHost
+        startDestination = startDestination
     ) {
         navigation(
             startDestination = ScreenRoute.PhoneNumberScreen.route,
@@ -69,7 +71,6 @@ fun MainNavHost(
                 ProfileScreen(navController = navController)
             }
             composable(ScreenRoute.EditProfileScreen.route) {
-                EditProfileScreen(navController, paddingValues)
             }
         }
     }

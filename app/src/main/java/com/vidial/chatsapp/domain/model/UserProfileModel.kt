@@ -1,6 +1,8 @@
 package com.vidial.chatsapp.domain.model
 
 import android.util.Log
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 data class UserProfileModel(
     val birthDate: String,
@@ -13,12 +15,20 @@ data class UserProfileModel(
 
 fun calculateZodiacSign(birthDate: String): String {
     if (birthDate.isBlank()) {
-        return ""
+        return "Unknown"
     }
 
     return try {
-        val (day, month) = birthDate.split("-").map { it.toInt() }
+        // Проверяем формат даты
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val date = dateFormat.parse(birthDate) ?: return "Unknown"
 
+        // Разбираем день и месяц
+        val calendar = java.util.Calendar.getInstance().apply { time = date }
+        val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
+        val month = calendar.get(java.util.Calendar.MONTH) + 1  // Месяцы в Calendar начинаются с 0
+
+        // Определяем знак зодиака по дню и месяцу
         when (month) {
             1 -> if (day < 20) "Capricorn" else "Aquarius"
             2 -> if (day < 19) "Aquarius" else "Pisces"
@@ -36,7 +46,7 @@ fun calculateZodiacSign(birthDate: String): String {
         }
     } catch (e: Exception) {
         Log.e("calculateZodiacSign", "Error parsing birth date: ${e.message}")
-        "Unknown"  // Возвращаем значение по умолчанию, если произошла ошибка
+        "Unknown"
     }
 }
 
