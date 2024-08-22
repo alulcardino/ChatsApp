@@ -2,6 +2,9 @@ package com.vidial.chatsapp.domain.model
 
 import com.vidial.chatsapp.data.remote.dto.AvatarDto
 import com.vidial.chatsapp.data.remote.dto.UpdateProfileDto
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 data class UpdateProfileModel(
     val name: String?,
@@ -20,7 +23,7 @@ fun UpdateProfileModel.toUpdateProfileDto(): UpdateProfileDto {
     return UpdateProfileDto(
         name = this.name,
         username = this.username,
-        birthday = this.birthday,
+        birthday = formatDateString(this.birthday ?: ""), // Преобразуем дату
         city = this.city,
         vk = "",
         instagram = "",
@@ -34,4 +37,21 @@ fun AvatarModel.toAvatarDto(): AvatarDto {
         filename = this.filename,
         base64 = this.base64
     )
+}
+
+fun formatDateString(dateString: String): String {
+    return try {
+        // Определяем исходный формат даты
+        val originalFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        // Определяем целевой формат даты
+        val targetFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // Преобразуем строку даты в объект Date
+        val date: Date? = originalFormat.parse(dateString)
+        // Форматируем объект Date в строку в требуемом формате
+        targetFormat.format(date ?: Date()) // Используем текущую дату в случае ошибки
+    } catch (e: Exception) {
+        // Возвращаем пустую строку в случае ошибки
+        ""
+    }
 }
