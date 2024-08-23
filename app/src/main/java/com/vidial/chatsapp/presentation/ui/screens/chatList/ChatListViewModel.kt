@@ -32,6 +32,7 @@ class ChatListViewModel @Inject constructor(
         when (intent) {
             is ChatListIntent.LoadChats -> loadChats()
             is ChatListIntent.OpenChat -> openChat(intent.chatId)
+            ChatListIntent.OpenProfile -> openProfile()
         }
     }
 
@@ -51,6 +52,12 @@ class ChatListViewModel @Inject constructor(
     private fun openChat(chatId: Int) {
         viewModelScope.launch {
             _effect.emit(ChatListEffect.NavigateToChat(chatId))
+        }
+    }
+
+    private fun openProfile() {
+        viewModelScope.launch {
+            _effect.emit(ChatListEffect.NavigateToProfile)
         }
     }
 }

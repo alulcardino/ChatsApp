@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -57,18 +58,22 @@ fun ChatListScreen(
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is ChatListEffect.ShowError -> {
-                    // Здесь можно отобразить сообщение об ошибке, например, используя Snackbar
-                }
+                is ChatListEffect.ShowError -> {}
                 is ChatListEffect.NavigateToChat -> {
                     navController.navigate(ScreenRoute.ChatScreen.createRoute(effect.chatId))
                 }
+                is ChatListEffect.NavigateToProfile ->
+                    navController.navigate(ScreenRoute.ProfileScreen.route)
             }
         }
     }
 
     Scaffold(
-        topBar = { ChatsTopBar() },
+        topBar = { ChatsTopBar(
+            onProfileClicked = {
+                viewModel.handleIntent(ChatListIntent.OpenProfile)
+            }
+        ) },
         content = { innerPadding ->
             ChatListContent(
                 state = state,
@@ -83,14 +88,27 @@ fun ChatListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun ChatsTopBar() {
+fun ChatsTopBar(
+    onProfileClicked: () -> Unit
+) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = "Chats",
+                text = "Чаты",
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.headlineSmall
             )
+        },
+        actions = {
+            IconButton(onClick = {
+                onProfileClicked()
+            }) {
+                Icon(
+                    painterResource(id = R.drawable.ic_user),
+                    contentDescription = "Перейти в профиль",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
