@@ -21,30 +21,13 @@ fun Root(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
-    val currentRouteHierarchyMap = navBackStackEntry?.destination?.hierarchy?.map { it.route.toString() }?.toList()
+    navBackStackEntry?.destination?.hierarchy?.map { it.route.toString() }?.toList()
         ?: emptyList()
 
     Scaffold(
-        bottomBar = {
-            if (currentRouteHierarchyMap.contains(ScreenRoute.ChatListScreen.route) ||
-                currentRouteHierarchyMap.contains(ScreenRoute.ProfileScreen.route)) {
-                MainNavigationBar(
-                    currentRouteHierarchyMap = currentRouteHierarchyMap,
-                    onButtonClick = { route ->
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                )
-            }
-        }
+
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            // Передаем paddingValues = PaddingValues(0.dp) в ChatScreen
             content(PaddingValues(0.dp))
         }
     }
