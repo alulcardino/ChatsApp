@@ -46,7 +46,6 @@ fun MainNavHost(
             }
         }
 
-        // Чаты
         navigation(
             startDestination = ScreenRoute.ChatListScreen.route,
             route = ScreenRoute.ChatsGraph.route

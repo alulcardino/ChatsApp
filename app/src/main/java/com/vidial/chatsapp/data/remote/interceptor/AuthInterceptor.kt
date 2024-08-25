@@ -1,11 +1,9 @@
 package com.vidial.chatsapp.data.remote.interceptor
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.vidial.chatsapp.domain.provider.TokenProvider
 import okhttp3.Interceptor
 import okhttp3.Response
-import okio.Buffer
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(

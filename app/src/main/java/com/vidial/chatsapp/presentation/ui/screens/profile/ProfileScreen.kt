@@ -1,6 +1,5 @@
 package com.vidial.chatsapp.presentation.ui.screens.profile
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -22,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -43,7 +43,6 @@ import com.vidial.chatsapp.presentation.ui.theme.DeepBlue
 import com.vidial.chatsapp.presentation.ui.theme.LightGray
 import com.vidial.chatsapp.presentation.ui.theme.LightPurple
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ProfileScreen(
     viewModel: UserProfileViewModel = hiltViewModel(),
@@ -74,7 +73,7 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             ChatsAppBar(
-                title = "Профиль",
+                title = stringResource(R.string.profile),
                 navigationIcon = Icons.Default.ArrowBack,
                 actionIcon = Icons.Default.Edit,
                 onNavigationClick = { viewModel.navigateBack() },
@@ -140,7 +139,9 @@ fun UserProfileContent(
     val isBirthdayValid = viewModel.isDateValid(editableBirthday)
 
     Column(
-        modifier = modifier.padding(16.dp),
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AvatarSection(
@@ -152,40 +153,38 @@ fun UserProfileContent(
                 imagePickerLauncher.launch(pickImageIntent)
             }
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         EditableTextField(
-            label = "Username",
-            value = userProfile.username,
-            onValueChange = {},
-            isEditing = false
+            label = stringResource(R.string.username),
+            value = editableName,
+            onValueChange = { },
+            isEditing = isEditing,
+            modifier = Modifier.fillMaxWidth()
         )
-
         EditableTextField(
-            label = "Phone",
+            label = stringResource(R.string.phone),
             value = userProfile.phone,
             onValueChange = {},
-            isEditing = false
+            isEditing = false,
+            modifier = Modifier.fillMaxWidth()
         )
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             EditableTextField(
-                label = "Birth Date",
+                label = stringResource(R.string.birth_date),
                 value = editableBirthday,
                 onValueChange = { newBirthday -> viewModel.updateEditableBirthday(newBirthday) },
                 isEditing = isEditing,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                errorMessage = if (isEditing && !isBirthdayValid) "Format is dd.mm.yyyy" else null,
                 modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             EditableTextField(
-                label = "Zodiac Sign",
+                label = stringResource(R.string.zodiac_sign),
                 value = userProfile.zodiacSign,
                 onValueChange = {},
                 isEditing = false,
@@ -193,29 +192,25 @@ fun UserProfileContent(
             )
         }
 
-        if (isEditing && !isBirthdayValid) {
-            Text(
-                text = "Birth Date must be in the format dd.MM.yyyy",
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
 
+        // Поле города
         EditableTextField(
-            label = "City",
+            label = stringResource(R.string.city),
             value = editableCity,
             onValueChange = { newCity -> viewModel.updateEditableCity(newCity) },
-            isEditing = isEditing
+            isEditing = isEditing,
+            modifier = Modifier.fillMaxWidth()
         )
+
 
         EditableTextField(
-            label = "About",
+            label = stringResource(R.string.about),
             value = editableStatus,
             onValueChange = { newAbout -> viewModel.updateEditableStatus(newAbout) },
-            isEditing = isEditing
+            isEditing = isEditing,
+            modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
 
         if (isEditing) {
             SaveButton(
@@ -239,12 +234,9 @@ fun UserProfileContent(
                 },
                 enabled = isBirthdayValid
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ChatButton(onClick = onCancelEdit, text = "Cancel")
+            ChatButton(onClick = onCancelEdit, text = stringResource(R.string.cancel))
         } else {
-            ChatButton(onClick = onLogout, text = "Logout")
+            ChatButton(onClick = onLogout, text = stringResource(R.string.logout))
         }
     }
 }
@@ -258,12 +250,12 @@ fun EditableTextField(
     isRequired: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    errorMessage: String? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
-            .padding(4.dp)
     ) {
         TextField(
             value = value,
@@ -275,7 +267,7 @@ fun EditableTextField(
                 Row {
                     Text(
                         text = label,
-                        style = MaterialTheme.typography.bodyLarge // Применение стиля из темы
+                        style = MaterialTheme.typography.bodyLarge
                     )
                     if (isRequired) {
                         Text(
@@ -307,35 +299,41 @@ fun EditableTextField(
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.medium),
             enabled = isEditing,
-
-
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        errorMessage?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
             )
+        }
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 @Composable
 fun AvatarSection(
+    modifier: Modifier = Modifier,
     avatarUri: Uri?,
     avatarUrl: String?,
     isEditing: Boolean,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(100.dp)
             .clip(MaterialTheme.shapes.medium)
-            .border(2.dp, LightPurple)
-            .background(Color.White)
+            .padding(16.dp)
             .clickable { if (isEditing) onClick() },
         contentAlignment = Alignment.Center
     ) {
         CoilImage(
             imageUrl = avatarUri?.toString() ?: avatarUrl,
-            defaultImageResId = R.drawable.chat_default,
+            defaultImageResId = R.drawable.avatar_placeholder,
             contentDescription = "Avatar",
             modifier = Modifier
-                .size(100.dp)
+                .size(80.dp)
                 .clip(MaterialTheme.shapes.medium)
         )
     }
@@ -352,7 +350,7 @@ fun SaveButton(
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(containerColor = DeepBlue)
     ) {
-        Text("Save", color = Color.White)
+        Text(stringResource(R.string.save), color = Color.White)
     }
 }
 

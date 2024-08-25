@@ -39,7 +39,7 @@ fun CoilImage(
         when (painter.state) {
             is AsyncImagePainter.State.Loading -> {
                 Image(
-                    painter = painterResource(id = defaultImageResId), // Placeholder image during loading
+                    painter = painterResource(id = defaultImageResId),
                     contentDescription = contentDescription,
                     modifier = Modifier
                         .fillMaxSize()
@@ -54,7 +54,7 @@ fun CoilImage(
             }
             is AsyncImagePainter.State.Error -> {
                 Image(
-                    painter = painterResource(id = defaultImageResId), // Error image
+                    painter = painterResource(id = defaultImageResId),
                     contentDescription = contentDescription,
                     modifier = Modifier
                         .fillMaxSize()

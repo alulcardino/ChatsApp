@@ -11,11 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,19 +19,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.vidial.chatsapp.R
 import com.vidial.chatsapp.presentation.ui.components.ChatButton
 import com.vidial.chatsapp.presentation.ui.components.ChatsAppBar
 import com.vidial.chatsapp.presentation.ui.components.ErrorScreen
@@ -45,7 +38,6 @@ import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 import com.vidial.chatsapp.presentation.ui.theme.DarkPurple
 import com.vidial.chatsapp.presentation.ui.theme.LightGray
 import com.vidial.chatsapp.presentation.ui.theme.LightPurple
-import kotlinx.coroutines.launch
 
 @Composable
 fun RegistrationScreen(
@@ -58,7 +50,6 @@ fun RegistrationScreen(
     val effectFlow = viewModel.effect
     val context = LocalContext.current
 
-    // Handle one-time events such as navigation or showing a toast
     LaunchedEffect(effectFlow) {
         effectFlow.collect { effect ->
             when (effect) {
@@ -81,7 +72,7 @@ fun RegistrationScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ChatsAppBar(title = "Register")
+        ChatsAppBar(title = stringResource(R.string.registration))
 
         when (state) {
             is RegistrationState.Initial -> {
@@ -134,7 +125,7 @@ fun RegistrationContent(
 
             RegistrationTextField(
                 value = phoneNumber,
-                label = "Phone Number",
+                label = stringResource(R.string.phone_number),
                 enabled = false,
                 onValueChange = {}
             )
@@ -143,7 +134,7 @@ fun RegistrationContent(
 
             RegistrationTextField(
                 value = name,
-                label = "Name",
+                label = stringResource(R.string.name),
                 onValueChange = onNameChange
             )
 
@@ -151,7 +142,7 @@ fun RegistrationContent(
 
             RegistrationTextField(
                 value = username,
-                label = "Username",
+                label = stringResource(R.string.username),
                 keyboardType = KeyboardType.Ascii,
                 onValueChange = onUsernameChange
             )
@@ -159,7 +150,7 @@ fun RegistrationContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             ChatButton(
-                text = "Register",
+                text = stringResource(R.string.register),
                 onClick = onRegisterClick
             )
         }
