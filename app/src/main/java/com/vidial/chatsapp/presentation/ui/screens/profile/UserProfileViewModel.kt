@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.vidial.chatsapp.domain.model.UpdateProfileModel
 import com.vidial.chatsapp.domain.usecase.GetUserProfileUseCase
 import com.vidial.chatsapp.domain.usecase.LogoutUseCase
-import com.vidial.chatsapp.domain.usecase.chat.UpdateUserProfileUseCase
+import com.vidial.chatsapp.domain.usecase.UpdateUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.util.Base64
+import com.vidial.chatsapp.data.repository.AuthException
 import java.io.ByteArrayOutputStream
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -85,13 +86,11 @@ class UserProfileViewModel @Inject constructor(
                         UserProfileState.Error("User profile is null")
                     }
                 }
-
                 result.isFailure -> {
-                    val message = result.exceptionOrNull()?.message ?: "Unknown error"
-                    _effect.emit(UserProfileEffect.ShowErrorMessage(message))
-                    UserProfileState.Error(message)
+                    val exception = result.exceptionOrNull() ?: AuthException.UnknownError()
+                    _effect.emit(UserProfileEffect.ShowErrorMessage(exception.message ?: "Unknown error"))
+                    UserProfileState.Error(exception.message ?: "Unknown error")
                 }
-
                 else -> UserProfileState.Error("Unknown error")
             }
         }
@@ -105,9 +104,9 @@ class UserProfileViewModel @Inject constructor(
                 _isEditing.value = false
                 _effect.emit(UserProfileEffect.ProfileUpdated)
             } else {
-                val message = result.exceptionOrNull()?.message ?: "Unknown error"
-                _effect.emit(UserProfileEffect.ShowErrorMessage(message))
-                _userProfileState.value = UserProfileState.Error(message)
+                val exception = result.exceptionOrNull() ?: AuthException.UnknownError()
+                _effect.emit(UserProfileEffect.ShowErrorMessage(exception.message ?: "Unknown error"))
+                _userProfileState.value = UserProfileState.Error(exception.message ?: "Unknown error")
             }
         }
     }
@@ -130,7 +129,6 @@ class UserProfileViewModel @Inject constructor(
 
     fun updateEditableBirthday(newBirthday: String) {
         _editableBirthday.value = newBirthday
-
     }
 
     fun updateEditableStatus(newStatus: String) {
