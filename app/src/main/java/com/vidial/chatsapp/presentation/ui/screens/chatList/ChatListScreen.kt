@@ -102,7 +102,6 @@ fun ChatListContent(
     } else {
         LazyColumn(
             contentPadding = paddingValues,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
@@ -155,7 +154,5 @@ fun ChatItem(chat: ChatInfoModel, onClick: () -> Unit) {
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
     }
 }
