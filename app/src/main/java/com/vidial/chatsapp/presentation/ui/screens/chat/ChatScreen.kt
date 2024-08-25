@@ -46,6 +46,8 @@ import androidx.compose.ui.graphics.Color
 import com.vidial.chatsapp.presentation.ui.components.ChatsAppBar
 import com.vidial.chatsapp.presentation.ui.theme.LightPurple
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import com.vidial.chatsapp.R
 import com.vidial.chatsapp.presentation.ui.theme.DeepBlue
 import com.vidial.chatsapp.presentation.ui.theme.LightGray
 
@@ -79,7 +81,7 @@ fun ChatScreen(
 
     Scaffold(
         topBar = {
-            ChatsAppBar(title = state.chat?.name ?: "Chat")
+            ChatsAppBar(title = state.chat?.name ?: stringResource(R.string.chat))
         },
         content = { innerPadding ->
             ChatContent(
@@ -137,7 +139,7 @@ fun ChatContent(
                 MessageItem(
                     sender = message.sender,
                     content = message.content,
-                    isCurrentUser = message.sender == "You"
+                    isCurrentUser = message.sender == stringResource(R.string.chat)
                 )
             }
         }

@@ -68,5 +68,3 @@ data class Avatars(
     @SerializedName("miniAvatar")
     val miniAvatar: String?
 )
-
-

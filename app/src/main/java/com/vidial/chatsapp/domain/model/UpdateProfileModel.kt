@@ -1,10 +1,5 @@
 package com.vidial.chatsapp.domain.model
 
-import com.vidial.chatsapp.data.remote.dto.AvatarDto
-import com.vidial.chatsapp.data.remote.dto.UpdateProfileDto
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 data class UpdateProfileModel(
     val name: String?,

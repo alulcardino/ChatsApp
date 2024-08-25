@@ -94,7 +94,7 @@ fun calculateZodiacSign(birthDate: String): String {
             else -> "Unknown"
         }
     } catch (e: Exception) {
-        "Unknown"
+        ""
     }
 }
 

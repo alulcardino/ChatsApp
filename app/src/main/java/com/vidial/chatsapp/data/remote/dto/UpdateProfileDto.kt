@@ -1,9 +1,6 @@
 package com.vidial.chatsapp.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
-import com.vidial.chatsapp.domain.model.AvatarModel
-import com.vidial.chatsapp.domain.model.UpdateProfileModel
-
 
 data class UpdateProfileDto(
     @SerializedName("name")

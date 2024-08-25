@@ -33,11 +33,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.vidial.chatsapp.R
 import com.vidial.chatsapp.presentation.ui.components.ChatButton
 import com.vidial.chatsapp.presentation.ui.components.ChatsAppBar
 import com.vidial.chatsapp.presentation.ui.components.ErrorScreen
@@ -81,7 +83,7 @@ fun SmsCodeScreen(
     }
 
     ChatsAppBar(
-        title = "SMS",
+        title = stringResource(R.string.sms),
     )
 
     Column(
@@ -166,6 +168,6 @@ fun OtpInputSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ChatButton(text = "Verify code", onClick = onVerifyCodeClick)
+        ChatButton(text = stringResource(R.string.verify_code), onClick = onVerifyCodeClick)
     }
 }

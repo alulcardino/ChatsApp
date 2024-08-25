@@ -41,6 +41,7 @@ import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.res.stringResource
 import com.vidial.chatsapp.domain.model.CountryModel
 import com.vidial.chatsapp.presentation.ui.components.ChatsAppBar
 import com.vidial.chatsapp.presentation.ui.components.ErrorScreen
@@ -68,7 +69,7 @@ fun PhoneNumberScreen(
             .padding(paddingValues)
     ) {
         ChatsAppBar(
-            title = "Phone Number",
+            title = stringResource(R.string.phone_number),
         )
 
         Box(
@@ -241,7 +242,7 @@ fun PhoneNumberField(
             focusedLabelColor = DarkPurple,
             disabledLabelColor = DarkPurple
         ),
-        label = { Text("Phone Number") },
+        label = { Text(stringResource(R.string.phone_number)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         modifier = Modifier.fillMaxWidth()
     )
@@ -260,7 +261,7 @@ fun SendCodeButton(
         modifier = Modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(containerColor = DeepBlue)
     ) {
-        Text("Send Code")
+        Text(stringResource(R.string.send_code))
     }
 }
 
@@ -273,7 +274,7 @@ fun CountryPickerDialog(
 ) {
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
-        title = { Text(text = "Select Country") },
+        title = { Text(text = stringResource(R.string.select_country)) },
         text = {
             LazyColumn {
                 items(countries) { country ->
@@ -300,7 +301,7 @@ fun CountryPickerDialog(
         },
         confirmButton = {
             TextButton(onClick = { onDismissRequest() }) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

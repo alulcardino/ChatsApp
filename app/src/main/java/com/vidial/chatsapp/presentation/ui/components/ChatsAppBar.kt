@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,13 +36,13 @@ fun ChatsAppBar(
     actionIcon: ImageVector? = null,
     onNavigationClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
-    dividerColor: Color = LightPurple // Цвет разделителя, можно настроить
+    dividerColor: Color = LightPurple
 ) {
     Column {
         CenterAlignedTopAppBar(
             modifier = modifier
-                .fillMaxWidth() // Заполняем всю ширину экрана
-                .height(60.dp) // Устанавливаем высоту AppBar (стандартная высота)
+                .fillMaxWidth()
+                .height(60.dp)
             ,
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
@@ -55,8 +54,8 @@ fun ChatsAppBar(
                 Text(
                     text = title,
                     color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleMedium, // Стиль текста
-                    fontSize = 20.sp // Размер текста
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 20.sp
                 )
             },
             navigationIcon = {
@@ -65,7 +64,7 @@ fun ChatsAppBar(
                         Icon(
                             imageVector = navigationIcon,
                             contentDescription = "Navigation",
-                            modifier = Modifier.size(24.dp) // Размер иконки
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
@@ -76,7 +75,7 @@ fun ChatsAppBar(
                         Icon(
                             imageVector = actionIcon,
                             contentDescription = "Action",
-                            modifier = Modifier.size(24.dp) // Размер иконки
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
@@ -86,7 +85,7 @@ fun ChatsAppBar(
         HorizontalDivider(
             thickness = 1.dp,
             color = dividerColor
-        ) // Добавляем Divider с цветом и толщиной
+        )
     }
 }
 
