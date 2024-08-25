@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -40,7 +39,16 @@ import androidx.navigation.NavHostController
 import com.vidial.chatsapp.R
 import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.TextFieldDefaults
 import com.vidial.chatsapp.domain.model.CountryModel
+import com.vidial.chatsapp.presentation.ui.components.ChatsAppBar
+import com.vidial.chatsapp.presentation.ui.components.ErrorScreen
+import com.vidial.chatsapp.presentation.ui.components.LoadingScreen
+import com.vidial.chatsapp.presentation.ui.theme.DarkPurple
+import com.vidial.chatsapp.presentation.ui.theme.DeepBlue
+import com.vidial.chatsapp.presentation.ui.theme.LightGray
+import com.vidial.chatsapp.presentation.ui.theme.LightPurple
 
 
 @Composable
@@ -54,60 +62,75 @@ fun PhoneNumberScreen(
     val selectedCountry by viewModel.selectedCountry.collectAsState()
     val phoneNumber by viewModel.phoneNumber.collectAsState()
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
-        contentAlignment = Alignment.Center
+            .padding(paddingValues)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
+        ChatsAppBar(
+            title = "Phone Number",
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
         ) {
-            when (state) {
-                is PhoneNumberState.Initial -> {
-                    PhoneNumberInput(
-                        countries = countries,
-                        selectedCountry = selectedCountry,
-                        phoneNumber = phoneNumber,
-                        onCountrySelected = { selectedCountryCode ->
-                            viewModel.handleIntent(PhoneNumberIntent.SelectCountry(selectedCountryCode))
-                        },
-                        onPhoneNumberChanged = { number ->
-                            viewModel.handleIntent(PhoneNumberIntent.UpdatePhoneNumber(number))
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    selectedCountry?.let { country ->
-                        SendCodeButton(
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                when (state) {
+                    is PhoneNumberState.Initial -> {
+                        PhoneNumberInput(
+                            countries = countries,
+                            selectedCountry = selectedCountry,
                             phoneNumber = phoneNumber,
-                            countryCode = country.mobileCode,
-                            onClick = {
-                                val fullPhoneNumber = "${country.mobileCode}$phoneNumber"
-                                Log.d("!!!", fullPhoneNumber)
-                                viewModel.handleIntent(PhoneNumberIntent.SendPhoneNumber(fullPhoneNumber))
+                            onCountrySelected = { selectedCountryCode ->
+                                viewModel.handleIntent(
+                                    PhoneNumberIntent.SelectCountry(
+                                        selectedCountryCode
+                                    )
+                                )
+                            },
+                            onPhoneNumberChanged = { number ->
+                                viewModel.handleIntent(PhoneNumberIntent.UpdatePhoneNumber(number))
                             }
                         )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        selectedCountry?.let { country ->
+                            SendCodeButton(
+                                phoneNumber = phoneNumber,
+                                onClick = {
+                                    val fullPhoneNumber = "${country.mobileCode}$phoneNumber"
+                                    viewModel.handleIntent(
+                                        PhoneNumberIntent.SendPhoneNumber(
+                                            fullPhoneNumber
+                                        )
+                                    )
+                                }
+                            )
+                        }
                     }
-                }
 
-                is PhoneNumberState.Loading -> {
-                    CircularProgressIndicator()
-                }
+                    is PhoneNumberState.Loading -> {
+                        LoadingScreen(innerPadding = paddingValues)
+                    }
 
-                is PhoneNumberState.Success -> {
-                    navController.navigate(ScreenRoute.SmsCodeScreen.createRoute(phoneNumber))
-                }
+                    is PhoneNumberState.Success -> {
+                        navController.navigate(ScreenRoute.SmsCodeScreen.createRoute(phoneNumber))
+                    }
 
-                is PhoneNumberState.Error -> {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Error: ${(state as PhoneNumberState.Error).message}",
-                        color = Color.Red
-                    )
+                    is PhoneNumberState.Error -> {
+                        ErrorScreen(
+                            message = (state as PhoneNumberState.Error).message,
+                            innerPadding = paddingValues
+                        )
+                    }
                 }
             }
         }
@@ -181,6 +204,11 @@ fun CountryCodeField(mobileCode: String) {
         label = { Text("Code") },
         modifier = Modifier.width(80.dp),
         enabled = false,
+        colors = TextFieldDefaults.colors(
+            disabledContainerColor = LightGray,
+            disabledIndicatorColor = Color.Transparent,
+            disabledSupportingTextColor = LightPurple,
+        ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
     )
 }
@@ -198,8 +226,22 @@ fun PhoneNumberField(
                 onPhoneNumberChanged(digitsOnly)
             }
         },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = LightPurple,
+            unfocusedContainerColor = LightPurple,
+            disabledContainerColor = LightGray,
+            focusedIndicatorColor = DarkPurple,
+            unfocusedIndicatorColor = DarkPurple,
+            disabledTextColor = Color.Black,
+            cursorColor = DarkPurple,
+            disabledIndicatorColor = Color.Transparent,
+            focusedSupportingTextColor = DarkPurple,
+            disabledSupportingTextColor = LightPurple,
+            unfocusedLabelColor = DarkPurple,
+            focusedLabelColor = DarkPurple,
+            disabledLabelColor = DarkPurple
+        ),
         label = { Text("Phone Number") },
-        placeholder = { Text("1234567890") },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         modifier = Modifier.fillMaxWidth()
     )
@@ -208,22 +250,17 @@ fun PhoneNumberField(
 
 @Composable
 fun SendCodeButton(
-    phoneNumber: String,  // phoneNumber без кода страны
-    countryCode: String,  // Код страны, например "+7"
-    onClick: () -> Unit   // Функция без параметров
+    phoneNumber: String,
+    onClick: () -> Unit
 ) {
-    val fullPhoneNumber = "$countryCode$phoneNumber"  // Объединяем код страны и номер
 
-    Column(
+    Button(
+        onClick = onClick,
+        enabled = phoneNumber.length == 10,
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        colors = ButtonDefaults.buttonColors(containerColor = DeepBlue)
     ) {
-        Button(
-            onClick = onClick,
-            enabled = phoneNumber.length == 10 // Проверяем только длину номера без кода страны
-        ) {
-            Text("Send Code")
-        }
+        Text("Send Code")
     }
 }
 
