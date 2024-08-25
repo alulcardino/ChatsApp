@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.util.Base64
-import com.vidial.chatsapp.data.repository.AuthException
+import com.vidial.chatsapp.domain.exception.AuthException
 import java.io.ByteArrayOutputStream
 import java.text.ParseException
 import java.text.SimpleDateFormat

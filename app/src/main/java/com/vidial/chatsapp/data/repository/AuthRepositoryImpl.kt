@@ -7,6 +7,7 @@ import com.vidial.chatsapp.data.remote.response.AuthResponse
 import com.vidial.chatsapp.data.remote.requests.CodeRequest
 import com.vidial.chatsapp.data.remote.requests.PhoneRequest
 import com.vidial.chatsapp.data.remote.requests.RegisterRequest
+import com.vidial.chatsapp.domain.exception.AuthException
 import com.vidial.chatsapp.domain.provider.TokenProvider
 import com.vidial.chatsapp.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers

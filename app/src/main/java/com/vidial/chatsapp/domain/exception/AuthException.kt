@@ -1,4 +1,4 @@
-package com.vidial.chatsapp.data.repository
+package com.vidial.chatsapp.domain.exception
 
 sealed class AuthException(message: String) : Exception(message) {
     class TokenRefreshFailed : AuthException("Unable to refresh token")

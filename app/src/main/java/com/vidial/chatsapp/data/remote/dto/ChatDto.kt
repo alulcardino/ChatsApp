@@ -9,8 +9,4 @@ data class ChatDto(
     val description: String
 )
 
-fun ChatDto.toChatInfoModel() : ChatInfoModel {
-    return ChatInfoModel(
-        id, imageUrl, name, description
-    )
-}
+

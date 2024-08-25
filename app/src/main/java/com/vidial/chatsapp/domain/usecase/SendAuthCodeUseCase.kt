@@ -1,8 +1,8 @@
 package com.vidial.chatsapp.domain.usecase
 
 import com.vidial.chatsapp.data.remote.requests.PhoneRequest
-import com.vidial.chatsapp.data.repository.AuthException
-import com.vidial.chatsapp.data.repository.mapFailure
+import com.vidial.chatsapp.domain.exception.AuthException
+import com.vidial.chatsapp.domain.exception.mapFailure
 import com.vidial.chatsapp.domain.repository.AuthRepository
 import javax.inject.Inject
 

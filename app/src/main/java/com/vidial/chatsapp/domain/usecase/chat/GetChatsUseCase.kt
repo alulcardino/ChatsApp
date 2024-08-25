@@ -1,6 +1,6 @@
 package com.vidial.chatsapp.domain.usecase.chat
 
-import com.vidial.chatsapp.data.remote.dto.toChatInfoModel
+import com.vidial.chatsapp.data.remote.mappers.toChatInfoModel
 import com.vidial.chatsapp.domain.model.ChatInfoModel
 import com.vidial.chatsapp.domain.repository.ChatRepository
 import javax.inject.Inject
