@@ -78,6 +78,7 @@ fun GetUserProfileDto.toUserProfileModel(): UserProfileModel {
     val username = profileData?.username.orEmpty()
     val city = profileData?.city.orEmpty()
     val phone = profileData?.phone.orEmpty()
+    val status = profileData?.status.orEmpty()
 
     val formattedBirthDate = formatDateString(birthDate)
 
@@ -89,7 +90,8 @@ fun GetUserProfileDto.toUserProfileModel(): UserProfileModel {
         city = city,
         avatarUrl = avatarUrl,
         phone = phone,
-        zodiacSign = zodiacSign
+        zodiacSign = zodiacSign,
+        status = status
     )
 }
 fun formatDateString(dateString: String): String {

@@ -51,6 +51,9 @@ class UserProfileViewModel @Inject constructor(
     private val _editableBirthday = MutableStateFlow("")
     val editableBirthday: StateFlow<String> = _editableBirthday
 
+    private val _editableStatus = MutableStateFlow("")
+    val editableStatus: StateFlow<String> = _editableStatus
+
     init {
         handleIntent(UserProfileIntent.FetchUserProfile)
     }
@@ -75,9 +78,8 @@ class UserProfileViewModel @Inject constructor(
                     val userProfile = result.getOrNull()
                     if (userProfile != null) {
                         _editableName.value = userProfile.username.ifBlank { "Unknown" }
-                        _editableCity.value = userProfile.city.ifBlank { "Not provided" }
-                        _editableBirthday.value =
-                            if (userProfile.birthDate.isBlank()) "Birthday not provided" else userProfile.birthDate
+                        _editableCity.value = userProfile.city.ifBlank { "" }
+                        _editableBirthday.value = userProfile.birthDate.ifBlank { ""}
                         UserProfileState.Success(userProfile)
                     } else {
                         UserProfileState.Error("User profile is null")
@@ -128,6 +130,17 @@ class UserProfileViewModel @Inject constructor(
 
     fun updateEditableBirthday(newBirthday: String) {
         _editableBirthday.value = newBirthday
+
+    }
+
+    fun updateEditableStatus(newStatus: String) {
+        _editableStatus.value = newStatus
+    }
+
+    fun navigateBack() {
+        viewModelScope.launch {
+            _effect.emit(UserProfileEffect.NavigateBack)
+        }
     }
 
     fun encodeImageToBase64(imageUri: Uri, context: Context): String? {
@@ -140,18 +153,17 @@ class UserProfileViewModel @Inject constructor(
     }
 
     fun isDateValid(dateString: String): Boolean {
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        dateFormat.isLenient = false
+        if (dateString.length != 10) return false
 
         val regex = """^\d{2}\.\d{2}\.\d{4}$""".toRegex()
 
-        return if (regex.matches(dateString)) {
-            try {
-                dateFormat.parse(dateString) != null
-            } catch (e: ParseException) {
-                false
-            }
-        } else {
+        if (!regex.matches(dateString)) return false
+
+        return try {
+            val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+            dateFormat.isLenient = false
+            dateFormat.parse(dateString) != null
+        } catch (e: ParseException) {
             false
         }
     }
