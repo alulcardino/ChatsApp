@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -43,6 +44,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import com.vidial.chatsapp.presentation.ui.components.ChatsAppBar
+import com.vidial.chatsapp.presentation.ui.theme.LightPurple
+import androidx.compose.ui.platform.LocalDensity
+import com.vidial.chatsapp.presentation.ui.theme.DeepBlue
+import com.vidial.chatsapp.presentation.ui.theme.LightGray
 
 @Composable
 fun ChatScreen(
@@ -62,7 +67,9 @@ fun ChatScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is ChatEffect.ShowError -> {
+                    // Handle error
                 }
+
                 ChatEffect.NavigateBack -> {
                     navController.popBackStack()
                 }
@@ -71,9 +78,9 @@ fun ChatScreen(
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        topBar = { ChatsAppBar(title = "Chats") },
-        //{ ChatTopBar(navController = navController, title = state.chat?.name ?: "Chat") },
+        topBar = {
+            ChatsAppBar(title = state.chat?.name ?: "Chat")
+        },
         content = { innerPadding ->
             ChatContent(
                 state = state,
@@ -97,27 +104,34 @@ fun ChatScreen(
     )
 }
 
-
-
 @Composable
 fun ChatContent(
-    state: ChatState, // Используем ChatState вместо ChatViewState
+    state: ChatState,
     messageContent: String,
     onMessageContentChange: (String) -> Unit,
     onSendMessage: () -> Unit,
     innerPadding: PaddingValues
 ) {
+    val scrollState = rememberLazyListState()
+
+    LaunchedEffect(state.messages.size) {
+        if (state.messages.isNotEmpty()) {
+            scrollState.animateScrollToItem(state.messages.size - 1)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .imePadding()
     ) {
         LazyColumn(
+            state = scrollState,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
+            reverseLayout = false
         ) {
             items(state.messages) { message ->
                 MessageItem(
@@ -128,7 +142,6 @@ fun ChatContent(
             }
         }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         MessageInput(
             messageContent = messageContent,
@@ -165,14 +178,22 @@ fun MessageInput(
         TextField(
             value = messageContent,
             onValueChange = onMessageContentChange,
-            label = { Text("Type a message") },
+            placeholder = {
+                Text(
+                    text = "Type your message",
+                    color = Color.Gray
+                )
+            },
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surface),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
+                containerColor = LightGray,
+                cursorColor = DeepBlue,
+
             )
         )
 
@@ -182,7 +203,7 @@ fun MessageInput(
             Icon(
                 Icons.Default.Send,
                 contentDescription = "Send Message",
-                tint = MaterialTheme.colorScheme.primary
+                tint = DeepBlue
             )
         }
     }
@@ -190,10 +211,7 @@ fun MessageInput(
 
 @Composable
 fun MessageItem(sender: String, content: String, isCurrentUser: Boolean) {
-    val backgroundColor =
-        if (isCurrentUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inversePrimary
-    val textColor =
-        if (isCurrentUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+    val backgroundColor = LightPurple
     val shape: CornerBasedShape = if (isCurrentUser) {
         RoundedCornerShape(16.dp, 16.dp, 0.dp, 16.dp)
     } else {
@@ -216,12 +234,10 @@ fun MessageItem(sender: String, content: String, isCurrentUser: Boolean) {
                 Text(
                     text = sender,
                     style = MaterialTheme.typography.labelSmall,
-                    color = textColor
                 )
                 Text(
                     text = content,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = textColor
                 )
             }
         }
