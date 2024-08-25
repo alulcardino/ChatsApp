@@ -20,33 +20,4 @@ data class AvatarModel(
     val base64: String?
 )
 
-fun UpdateProfileModel.toUpdateProfileDto(): UpdateProfileDto {
-    return UpdateProfileDto(
-        name = this.name,
-        username = this.username,
-        birthday = formatDateString(this.birthday ?: ""), // Преобразуем дату
-        city = this.city,
-        vk = "",
-        instagram = "",
-        status = this.status,
-        avatarDto = this.avatar?.toAvatarDto()
-    )
-}
 
-fun AvatarModel.toAvatarDto(): AvatarDto {
-    return AvatarDto(
-        filename = this.filename,
-        base64 = this.base64
-    )
-}
-
-fun formatDateString(dateString: String): String {
-    return try {
-        val originalFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        val targetFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val date: Date? = originalFormat.parse(dateString)
-        targetFormat.format(date ?: Date())
-    } catch (e: Exception) {
-        ""
-    }
-}

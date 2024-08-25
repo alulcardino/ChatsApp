@@ -35,17 +35,23 @@ class RegistrationViewModel @Inject constructor(
     fun handleIntent(intent: RegistrationIntent) {
         when (intent) {
             is RegistrationIntent.RegisterUser -> {
-                if (isUsernameValid(intent.username) && isNameValid(intent.name)) {
-                    registerUser(intent.phoneNumber, intent.name, intent.username)
-                } else {
-                    viewModelScope.launch {
-                        _effect.emit(RegistrationEffect.ShowError("Invalid username format"))
-                    }
+                viewModelScope.launch {
+                    _state.value = RegistrationState.Loading
+                    val result = registerUserUseCase(intent.phoneNumber, intent.name, intent.username)
+                    result.fold(
+                        onSuccess = {
+                            _state.value = RegistrationState.Initial
+                            _effect.emit(RegistrationEffect.NavigateToChatList)
+                        },
+                        onFailure = { exception ->
+                            _state.value = RegistrationState.Initial
+                            _effect.emit(RegistrationEffect.ShowError(exception.message ?: "Registration failed"))
+                        }
+                    )
                 }
             }
         }
     }
-
     private fun isUsernameValid(username: String): Boolean {
         return username.matches(usernameRegex)
     }

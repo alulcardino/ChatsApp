@@ -7,6 +7,7 @@ import com.vidial.chatsapp.data.remote.response.AuthResponse
 import com.vidial.chatsapp.data.remote.requests.CodeRequest
 import com.vidial.chatsapp.data.remote.requests.PhoneRequest
 import com.vidial.chatsapp.data.remote.requests.RegisterRequest
+import com.vidial.chatsapp.domain.exception.AuthException
 import com.vidial.chatsapp.domain.provider.TokenProvider
 import com.vidial.chatsapp.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
@@ -20,39 +21,28 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
 
     private suspend fun <T> executeWithTokenRefresh(request: suspend () -> Response<T>): Result<T> {
-        val response = try {
-            request()
-        } catch (e: Exception) {
-            return Result.failure(e)
-        }
-
-        return when {
-            response.isSuccessful -> {
-                Result.success(response.body()!!)
-            }
-            response.code() == 401 -> {
-                val newToken = tokenProvider.refreshAccessToken()
-                if (newToken != null) {
-                    val newResponse = try {
-                        request()
-                    } catch (e: Exception) {
-                        return Result.failure(Exception("Request after token refresh failed"))
-                    }
-                    if (newResponse.isSuccessful) {
-                        Result.success(newResponse.body()!!)
+        return try {
+            val response = request()
+            when {
+                response.isSuccessful -> Result.success(response.body()!!)
+                response.code() == 401 -> {
+                    val newToken = tokenProvider.refreshAccessToken()
+                    if (newToken != null) {
+                        val newResponse = request()
+                        if (newResponse.isSuccessful) {
+                            Result.success(newResponse.body()!!)
+                        } else {
+                            Result.failure(AuthException.TokenRefreshFailed())
+                        }
                     } else {
-                        Result.failure(Exception("Request after token refresh failed with status: ${newResponse.code()}"))
+                        Result.failure(AuthException.TokenRefreshFailed())
                     }
-                } else {
-                    Result.failure(Exception("Unable to refresh token"))
                 }
+                response.code() == 404 -> Result.failure(AuthException.NotFound())
+                else -> Result.failure(AuthException.UnknownError())
             }
-            response.code() == 404 -> {
-                Result.failure(Exception("Request failed with status 404: Not Found"))
-            }
-            else -> {
-                Result.failure(Exception("Request failed with status: ${response.code()} - ${response.message()}"))
-            }
+        } catch (e: Exception) {
+            Result.failure(AuthException.NetworkError())
         }
     }
 

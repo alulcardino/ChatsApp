@@ -39,12 +39,15 @@ class PhoneNumberViewModel @Inject constructor(
     }
 
     private fun loadCountries() {
-        _countries.value = getCountriesUseCase.execute()
+        viewModelScope.launch {
+            _countries.value = getCountriesUseCase.execute()
+        }
     }
 
     private fun selectDefaultCountry() {
-        val defaultCountryCode = "RU"
-        _selectedCountry.value = getCountryByCodeUseCase.execute(defaultCountryCode)
+        viewModelScope.launch {
+            _selectedCountry.value = getCountryByCodeUseCase.execute("RU")
+        }
     }
 
     fun handleIntent(intent: PhoneNumberIntent) {
@@ -56,12 +59,14 @@ class PhoneNumberViewModel @Inject constructor(
     }
 
     private fun selectCountry(code: String) {
-        _selectedCountry.value = getCountryByCodeUseCase.execute(code)
+        viewModelScope.launch {
+            _selectedCountry.value = getCountryByCodeUseCase.execute(code)
+        }
     }
 
     private fun updatePhoneNumber(number: String) {
         val cleanedNumber = number.replace("\\D".toRegex(), "")
-        if (cleanedNumber.length <= 10) { // Ограничиваем длину только самого номера, без кода страны
+        if (cleanedNumber.length <= 10) {
             _phoneNumber.value = cleanedNumber
         }
     }

@@ -10,10 +10,6 @@ data class MessageDto(
     val timestamp: String
 )
 
-fun MessageDto.toMessageModel() : MessageModel {
-    return MessageModel(
-        id, chatId, sender, content, timestamp
-    )
-}
+
 
 

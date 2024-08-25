@@ -9,8 +9,3 @@ data class CountryDto(
     val flagResId: Int
 )
 
-fun CountryDto.toCountryModel() : CountryModel {
-    return CountryModel(
-        name, code, mobileCode, flagResId
-    )
-}
