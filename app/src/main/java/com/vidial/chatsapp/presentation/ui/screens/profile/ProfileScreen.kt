@@ -32,6 +32,7 @@ import com.vidial.chatsapp.R
 import com.vidial.chatsapp.domain.model.AvatarModel
 import com.vidial.chatsapp.domain.model.UpdateProfileModel
 import com.vidial.chatsapp.domain.model.UserProfileModel
+import com.vidial.chatsapp.presentation.ui.components.ChatButton
 import com.vidial.chatsapp.presentation.ui.components.ChatsAppBar
 import com.vidial.chatsapp.presentation.ui.components.CoilImage
 import com.vidial.chatsapp.presentation.ui.components.ErrorScreen
@@ -241,9 +242,9 @@ fun UserProfileContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            CancelButton(onClick = onCancelEdit)
+            ChatButton(onClick = onCancelEdit, text = "Cancel")
         } else {
-            LogoutButton(onClick = onLogout)
+            ChatButton(onClick = onLogout, text = "Logout")
         }
     }
 }
@@ -355,28 +356,3 @@ fun SaveButton(
     }
 }
 
-@Composable
-fun CancelButton(
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = DeepBlue)
-    ) {
-        Text("Cancel", color = Color.White)
-    }
-}
-
-@Composable
-fun LogoutButton(
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = DeepBlue)
-    ) {
-        Text("Logout", color = Color.White)
-    }
-}

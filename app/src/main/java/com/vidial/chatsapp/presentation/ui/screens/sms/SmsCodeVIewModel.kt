@@ -23,13 +23,27 @@ class SmsCodeViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<SmsCodeEffect>()
     val effect: SharedFlow<SmsCodeEffect> get() = _effect
 
-    fun handleIntent(intent: SmsCodeIntent) {
-        when (intent) {
-            is SmsCodeIntent.VerifyCode -> verifyCode(intent.phoneNumber, intent.code)
+    private val _otpValues = MutableStateFlow(List(6) { "" })
+    val otpValues: StateFlow<List<String>> get() = _otpValues
+
+    fun onOtpValueChange(index: Int, newValue: String) {
+        if (newValue.length <= 1 && newValue.all { it.isDigit() }) {
+            _otpValues.value = _otpValues.value.toMutableList().apply {
+                this[index] = newValue
+            }
         }
     }
 
-    private fun verifyCode(phoneNumber: String, code: String) {
+    fun onFocusChange(currentIndex: Int, isNext: Boolean) {
+        if (isNext) {
+            _otpValues.value.getOrNull(currentIndex + 1)?.let { _otpValues.value[currentIndex + 1] }
+        } else {
+            _otpValues.value.getOrNull(currentIndex - 1)?.let { _otpValues.value[currentIndex - 1] }
+        }
+    }
+
+    fun verifyCode(phoneNumber: String) {
+        val code = _otpValues.value.joinToString("")
         viewModelScope.launch {
             _state.value = SmsCodeState.Loading
             try {

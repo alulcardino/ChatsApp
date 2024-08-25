@@ -1,6 +1,8 @@
 package com.vidial.chatsapp.presentation.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -8,7 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +26,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vidial.chatsapp.presentation.ui.theme.LightPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,50 +36,58 @@ fun ChatsAppBar(
     navigationIcon: ImageVector? = null,
     actionIcon: ImageVector? = null,
     onNavigationClick: () -> Unit = {},
-    onActionClick: () -> Unit = {}
+    onActionClick: () -> Unit = {},
+    dividerColor: Color = LightPurple // Цвет разделителя, можно настроить
 ) {
-    CenterAlignedTopAppBar(
-        modifier = modifier
-            .fillMaxWidth() // Заполняем всю ширину экрана
-            .height(60.dp)
-            ,// Устанавливаем высоту AppBar (стандартная высота)
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
-            titleContentColor = MaterialTheme.colorScheme.onBackground,
-            actionIconContentColor = MaterialTheme.colorScheme.onBackground
-        ),
-        title = {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.titleMedium, // Стиль текста
-                fontSize = 20.sp // Размер текста
-            )
-        },
-        navigationIcon = {
-            if (navigationIcon != null) {
-                IconButton(onClick = onNavigationClick) {
-                    Icon(
-                        imageVector = navigationIcon,
-                        contentDescription = "Navigation",
-                        modifier = Modifier.size(24.dp) // Размер иконки
-                    )
+    Column {
+        CenterAlignedTopAppBar(
+            modifier = modifier
+                .fillMaxWidth() // Заполняем всю ширину экрана
+                .height(60.dp) // Устанавливаем высоту AppBar (стандартная высота)
+            ,
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                titleContentColor = MaterialTheme.colorScheme.onBackground,
+                actionIconContentColor = MaterialTheme.colorScheme.onBackground
+            ),
+            title = {
+                Text(
+                    text = title,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.titleMedium, // Стиль текста
+                    fontSize = 20.sp // Размер текста
+                )
+            },
+            navigationIcon = {
+                if (navigationIcon != null) {
+                    IconButton(onClick = onNavigationClick) {
+                        Icon(
+                            imageVector = navigationIcon,
+                            contentDescription = "Navigation",
+                            modifier = Modifier.size(24.dp) // Размер иконки
+                        )
+                    }
+                }
+            },
+            actions = {
+                if (actionIcon != null) {
+                    IconButton(onClick = onActionClick) {
+                        Icon(
+                            imageVector = actionIcon,
+                            contentDescription = "Action",
+                            modifier = Modifier.size(24.dp) // Размер иконки
+                        )
+                    }
                 }
             }
-        },
-        actions = {
-            if (actionIcon != null) {
-                IconButton(onClick = onActionClick) {
-                    Icon(
-                        imageVector = actionIcon,
-                        contentDescription = "Action",
-                        modifier = Modifier.size(24.dp) // Размер иконки
-                    )
-                }
-            }
-        }
-    )
+        )
+        Spacer(modifier = Modifier.size(16.dp))
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = dividerColor
+        ) // Добавляем Divider с цветом и толщиной
+    }
 }
 
 
@@ -82,7 +95,9 @@ fun ChatsAppBar(
 @Composable
 fun ChatsAppBarPreview() {
     MaterialTheme {
-        Surface(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+        Surface(modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)) {
             ChatsAppBar(
                 title = "Chat App",
                 navigationIcon = Icons.Filled.ArrowBack,
