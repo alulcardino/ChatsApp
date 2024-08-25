@@ -1,7 +1,11 @@
 package com.vidial.chatsapp.presentation.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
@@ -11,9 +15,7 @@ import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 import com.vidial.chatsapp.presentation.ui.components.scafford.Root
 
 @Composable
-fun App(
-    tokenProvider: TokenProvider
-) {
+fun App(tokenProvider: TokenProvider) {
     val navController = rememberNavController()
 
     LaunchedEffect(Unit) {
@@ -28,11 +30,16 @@ fun App(
         }
     }
 
-    Root(navController = navController) { paddingValues ->
-        MainNavHost(
-            navController = navController,
-            paddingValues = paddingValues,
-            startDestination = ScreenRoute.LoginGraph.route
-        )
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Root(navController = navController) { paddingValues ->
+            MainNavHost(
+                navController = navController,
+                paddingValues = paddingValues,
+                startDestination = ScreenRoute.LoginGraph.route
+            )
+        }
     }
 }

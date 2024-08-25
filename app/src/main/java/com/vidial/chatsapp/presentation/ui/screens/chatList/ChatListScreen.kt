@@ -5,14 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,12 +37,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.vidial.chatsapp.R
 import com.vidial.chatsapp.domain.model.ChatInfoModel
+import com.vidial.chatsapp.presentation.ui.components.ChatsAppBar
 import com.vidial.chatsapp.presentation.ui.components.CoilImage
 import com.vidial.chatsapp.presentation.ui.components.navigation.ScreenRoute
 
@@ -62,6 +61,7 @@ fun ChatListScreen(
                 is ChatListEffect.NavigateToChat -> {
                     navController.navigate(ScreenRoute.ChatScreen.createRoute(effect.chatId))
                 }
+
                 is ChatListEffect.NavigateToProfile ->
                     navController.navigate(ScreenRoute.ProfileScreen.route)
             }
@@ -69,11 +69,13 @@ fun ChatListScreen(
     }
 
     Scaffold(
-        topBar = { ChatsTopBar(
-            onProfileClicked = {
-                viewModel.handleIntent(ChatListIntent.OpenProfile)
-            }
-        ) },
+        topBar = {
+            ChatsAppBar(
+                title = "Чаты",
+                actionIcon = Icons.Default.Person,
+                onActionClick = { viewModel.openProfile() }
+            )
+        },
         content = { innerPadding ->
             ChatListContent(
                 state = state,
@@ -86,39 +88,6 @@ fun ChatListScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@Composable
-fun ChatsTopBar(
-    onProfileClicked: () -> Unit
-) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = "Чаты",
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.headlineSmall
-            )
-        },
-        actions = {
-            IconButton(onClick = {
-                onProfileClicked()
-            }) {
-                Icon(
-                    painterResource(id = R.drawable.ic_user),
-                    contentDescription = "Перейти в профиль",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        modifier = Modifier
-            .height(64.dp)
-            .imeNestedScroll(),
-    )
-}
 
 @Composable
 fun ChatListContent(

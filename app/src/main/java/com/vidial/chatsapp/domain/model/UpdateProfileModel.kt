@@ -11,7 +11,8 @@ data class UpdateProfileModel(
     val username: String?,
     val birthday: String?,
     val city: String?,
-    val avatar: AvatarModel?
+    val avatar: AvatarModel?,
+    val status: String?,
 )
 
 data class AvatarModel(
@@ -27,7 +28,7 @@ fun UpdateProfileModel.toUpdateProfileDto(): UpdateProfileDto {
         city = this.city,
         vk = "",
         instagram = "",
-        status = "",
+        status = this.status,
         avatarDto = this.avatar?.toAvatarDto()
     )
 }
@@ -41,17 +42,11 @@ fun AvatarModel.toAvatarDto(): AvatarDto {
 
 fun formatDateString(dateString: String): String {
     return try {
-        // Определяем исходный формат даты
         val originalFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        // Определяем целевой формат даты
         val targetFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-        // Преобразуем строку даты в объект Date
         val date: Date? = originalFormat.parse(dateString)
-        // Форматируем объект Date в строку в требуемом формате
-        targetFormat.format(date ?: Date()) // Используем текущую дату в случае ошибки
+        targetFormat.format(date ?: Date())
     } catch (e: Exception) {
-        // Возвращаем пустую строку в случае ошибки
         ""
     }
 }

@@ -25,3 +25,8 @@ val OnSecondaryDark = Color.White
 val OnTertiaryDark = Color.White
 val OnBackgroundDark = Color(0xFFE4E4E4)
 val OnSurfaceDark = Color(0xFFE4E4E4)
+
+val LightPurple = Color(0xFFECE5FF)  // #ECE5FF
+val LightGray = Color(0xFFE9E7EF)  // #E9E7EF
+val DeepBlue = Color(0xFF65558F)  // #65558F
+val DarkPurple = Color(0xFF6022AB)

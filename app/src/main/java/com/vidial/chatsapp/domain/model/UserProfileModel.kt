@@ -10,7 +10,9 @@ data class UserProfileModel(
     val zodiacSign: String = calculateZodiacSign(birthDate),
     val username: String,
     val city: String,
-    val avatarUrl: String?
+    val avatarUrl: String?,
+    val status: String?
+
 )
 
 fun calculateZodiacSign(birthDate: String): String {

@@ -1,7 +1,5 @@
 package com.vidial.chatsapp.presentation.ui.components.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -15,7 +13,6 @@ import com.vidial.chatsapp.presentation.ui.screens.phone.PhoneNumberScreen
 import com.vidial.chatsapp.presentation.ui.screens.registration.RegistrationScreen
 import com.vidial.chatsapp.presentation.ui.screens.sms.SmsCodeScreen
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainNavHost(
     navController: NavHostController,
