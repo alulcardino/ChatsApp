@@ -71,7 +71,6 @@ fun ChatScreen(
                 is ChatEffect.ShowError -> {
                     // Handle error
                 }
-
                 ChatEffect.NavigateBack -> {
                     navController.popBackStack()
                 }
@@ -81,7 +80,7 @@ fun ChatScreen(
 
     Scaffold(
         topBar = {
-            ChatsAppBar(title = state.chat?.name ?: stringResource(R.string.chat))
+            ChatsAppBar(title = state.chat?.name ?: stringResource(id = R.string.chat))
         },
         content = { innerPadding ->
             ChatContent(
@@ -90,13 +89,7 @@ fun ChatScreen(
                 onMessageContentChange = { messageContent = it },
                 onSendMessage = {
                     if (messageContent.isNotBlank()) {
-                        viewModel.handleIntent(
-                            ChatIntent.SendMessage(
-                                chatId,
-                                "You",
-                                messageContent
-                            )
-                        )
+                        viewModel.handleIntent(ChatIntent.SendMessage(chatId, "You", messageContent))
                         messageContent = ""
                     }
                 },
@@ -132,18 +125,16 @@ fun ChatContent(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            reverseLayout = false
+                .padding(vertical = 8.dp)
         ) {
             items(state.messages) { message ->
                 MessageItem(
                     sender = message.sender,
                     content = message.content,
-                    isCurrentUser = message.sender == stringResource(R.string.chat)
+                    isCurrentUser = message.sender == "You"
                 )
             }
         }
-
 
         MessageInput(
             messageContent = messageContent,
@@ -158,7 +149,7 @@ fun ChatContent(
                     .background(Color.Black.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                CircularProgressIndicator(color = Color.Blue)
             }
         }
     }
@@ -180,22 +171,18 @@ fun MessageInput(
         TextField(
             value = messageContent,
             onValueChange = onMessageContentChange,
-            placeholder = {
-                Text(
-                    text = "Type your message",
-                    color = Color.Gray
-                )
-            },
+            placeholder = { Text(stringResource(R.string.type_your_message), color = Color.Gray) },
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surface),
+                .background(Color.LightGray),
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 containerColor = LightGray,
-                cursorColor = DeepBlue,
-
+                focusedTextColor = Color.Black,
+                unfocusedLabelColor = Color.Black,
+                cursorColor = DeepBlue
             )
         )
 
@@ -203,7 +190,7 @@ fun MessageInput(
 
         IconButton(onClick = onSendMessage) {
             Icon(
-                Icons.Default.Send,
+                imageVector = Icons.Default.Send,
                 contentDescription = "Send Message",
                 tint = DeepBlue
             )
@@ -214,7 +201,7 @@ fun MessageInput(
 @Composable
 fun MessageItem(sender: String, content: String, isCurrentUser: Boolean) {
     val backgroundColor = LightPurple
-    val shape: CornerBasedShape = if (isCurrentUser) {
+    val shape = if (isCurrentUser) {
         RoundedCornerShape(16.dp, 16.dp, 0.dp, 16.dp)
     } else {
         RoundedCornerShape(16.dp, 16.dp, 16.dp, 0.dp)
@@ -236,10 +223,12 @@ fun MessageItem(sender: String, content: String, isCurrentUser: Boolean) {
                 Text(
                     text = sender,
                     style = MaterialTheme.typography.labelSmall,
+                    color = Color.Black
                 )
                 Text(
                     text = content,
                     style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Black
                 )
             }
         }

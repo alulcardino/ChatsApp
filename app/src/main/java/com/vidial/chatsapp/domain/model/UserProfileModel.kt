@@ -17,20 +17,17 @@ data class UserProfileModel(
 
 fun calculateZodiacSign(birthDate: String): String {
     if (birthDate.isBlank()) {
-        return "Unknown"
+        return ""
     }
 
     return try {
-        // Проверяем формат даты
         val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-        val date = dateFormat.parse(birthDate) ?: return "Unknown"
+        val date = dateFormat.parse(birthDate) ?: return ""
 
-        // Разбираем день и месяц
         val calendar = java.util.Calendar.getInstance().apply { time = date }
         val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
-        val month = calendar.get(java.util.Calendar.MONTH) + 1  // Месяцы в Calendar начинаются с 0
+        val month = calendar.get(java.util.Calendar.MONTH) + 1
 
-        // Определяем знак зодиака по дню и месяцу
         when (month) {
             1 -> if (day < 20) "Capricorn" else "Aquarius"
             2 -> if (day < 19) "Aquarius" else "Pisces"
@@ -44,11 +41,11 @@ fun calculateZodiacSign(birthDate: String): String {
             10 -> if (day < 23) "Libra" else "Scorpio"
             11 -> if (day < 22) "Scorpio" else "Sagittarius"
             12 -> if (day < 22) "Sagittarius" else "Capricorn"
-            else -> "Unknown"
+            else -> ""
         }
     } catch (e: Exception) {
         Log.e("calculateZodiacSign", "Error parsing birth date: ${e.message}")
-        "Unknown"
+        ""
     }
 }
 
